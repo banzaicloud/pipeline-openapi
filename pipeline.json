@@ -1,0 +1,1024 @@
+swagger: "2.0"
+info:
+  description: pipeline api
+  version: "0.2.0"
+  title: pipeline api
+  contact:
+    email: you@your-company.com
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+tags:
+  - name: status
+    description: status
+  - name: clusters
+    description: Clusters related functions
+  - name: cluster
+    description: One cluster related functions
+  - name: deployments
+    description: Deployment related functions for a cluster
+  - name: deployment
+    description: Functions related for a deployment
+  - name: auth
+    description: generating auth tokens
+paths:
+  /clusters:
+    post:
+      tags:
+        - clusters
+      summary: creates a new cluster
+      operationId: CreateCluster
+      description: CreateCluster creates a K8S cluster in the cloud
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: CreateClusterRequest
+          description: params for the cluster to create
+          schema:
+            $ref: '#/definitions/CreateClusterRequest'
+      responses:
+        '201':
+          description: Cluster created successfully!
+          schema:
+            $ref: '#/definitions/CreateClusterRequestSuccess'
+        '400':
+          description: >-
+            Required field is empty / malformed / not supported cloud type /
+            name already in use / cloud did not launch the cluster
+    get:
+      tags:
+        - clusters
+      summary: fetch clusters
+      operationId: FetchClusters
+      description: FetchClusters fetches all the K8S clusters from the cloud
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/ClusterRepresentation'
+        '404':
+          description: No clusters found!
+  '/clusters/{id}':
+    get:
+      tags:
+        - cluster
+      summary: fetch cluster by id
+      operationId: FetchCluster
+      description: FetchCluster fetch a K8S cluster in the cloud
+      parameters:
+        - name: id
+          in: path
+          type: number
+          required: true
+          description: Selected cluster identification (number)
+      produces:
+        - applciation/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/GetClusterInfoAmazon'
+        '400':
+          description: not supported cloud type
+        '404':
+          description: Cluster with id not found
+    put:
+      tags:
+        - cluster
+      summary: updates a cluster
+      operationId: UpdateCluster
+      description: UpdateCluster updates a K8S cluster in the cloud (e.g. autoscale)
+      parameters:
+        - name: id
+          in: path
+          type: number
+          required: true
+          description: Selected cluster identification (number)
+        - name: UpdateClusterRequest
+          in: body
+          description: UpdateClusterRequest
+          schema:
+            $ref: '#/definitions/UpdateClusterRequest'
+      produces:
+        - application/json
+      responses:
+        '200':
+            description: OK
+            schema:
+            #different for amazon/azure
+              type: object
+              properties:
+                status:
+                  type: string
+                  example: OK
+                message:
+                  type: string
+                  example: Cluster updated successfully!
+                propertyId:
+                  type: number
+                  example: 5
+        '400':
+          description: required field is empty / ...
+    delete:
+      tags:
+        - clusters
+      summary: deletes a cluster
+      operationId: DeleteCluster
+      description: DeleteCluster deletes a K8S cluster from the cloud
+      parameters:
+        - name: id
+          in: path
+          type: number
+          required: true
+          description: Selected cluster identification (number)
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+          #different for amazon/azure
+            type: object
+            properties:
+              status:
+                type: string
+                example: OK
+              message:
+                type: string
+                example: Cluster deleted successfully!
+              propertyId:
+                type: number
+                example: 5
+        '400':
+          description: can't delete cluster
+        '404':
+          description: cluster not found
+    head:
+      tags:
+        - cluster
+      summary: retrieves cluster status
+      operationId: GetClusterStatus
+      description: GetClusterStatus retrieves the cluster status
+      parameters:
+        - name: id
+          in: path
+          type: number
+          required: true
+          description: Selected cluster identification (number)
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+            properties:
+              status:
+                type: number
+                enum:
+                 - 200
+              message:
+                type: string
+                enum:
+                 - Kubernetes cluster available
+        '204':
+          description: no content
+          schema:
+            type: object
+            properties:
+              status:
+                type: number
+                enum:
+                 - 204
+              message:
+                type: string
+                enum:
+                 - Kubernetes cluster not ready yet
+        '400':
+          description: Error during get cluster
+  /clusters/{id}/config:
+    get:
+      tags:
+       - cluster
+      summary: fetches a cluster config
+      operationId: FetchClusterConfig
+      description: FetchClusterConfig fetches a cluster config
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          type: number
+          required: true
+          description: Selected cluster identification (number)
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+            properties:
+              status:
+                type: number
+                enum:
+                 - 204
+              data:
+                type: string
+                example: cluster config ...
+        '400':
+          description: not supported cloud / ...
+        '500':
+          description: error during read file
+        '503':
+          description: error read cluster config
+
+  /clusters/{id}/endpoints:
+    get:
+      tags:
+        - cluster
+      summary: List service public endpoints
+      operationId: ListEndpoints
+      description: List service public endpoints
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          type: number
+          required: true
+          description: Selected cluster identification (number)
+      responses:
+        '200':
+          description: azure/amazon config TODO
+        '404':
+          description: cluster not found
+        '500':
+          description: something went wrong
+
+  /clusters/{id}/helminit:
+    post:
+      tags:
+        - cluster
+      summary: installs Helm on AKS cluster and configure the Helm
+      operationId: InitHelmInCluster
+      description: InitHelmInCluster installs Helm on AKS cluster and configure the Helm client
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          type: number
+          required: true
+          description: Selected cluster identification (number)
+        - name: helmInstall
+          in: body
+          schema:
+            $ref: '#/definitions/BansaiHelmInstall'
+          description: helm install params
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: required field is empty / could not get kubernetes client
+        '500':
+          description: error installing / upgrading
+
+  /clusters/{id}/deployments:
+    get:
+      tags:
+        - deployments
+      summary: lists a Helm deployment
+      operationId: ListDeployments
+      description: ListDeployments lists a Helm deployment
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          type: number
+          required: true
+          description: Selected cluster identification (number)
+      responses:
+        '200':
+          description: There is no installed charts. / success
+          #TODO
+        '404':
+          description: Error getting deployments.
+    post:
+      tags:
+        - deployments
+      summary: creates a Helm deployment
+      operationId: CreateDeployment
+      description: CreateDeployment creates a Helm deployment
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          type: number
+          required: true
+          description: Selected cluster identification (number)
+        - name: deployment
+          in: body
+          description: helm deployment type
+          required: true
+          schema:
+            $ref: '#/definitions/HelmDeploymentType'
+      responses:
+        '201':
+          description: created
+          schema:
+            type: object
+            properties:
+              status:
+                enum:
+                  - 201
+              release_name:
+                type: string
+                example: name
+              notes:
+                type: string
+                example: note
+        '400':
+          description: Required field is empty
+        '404':
+          description: Error during create deployment.
+    head:
+      tags:
+        - deployments
+      summary: checks if tiller ready to accept deployments
+      operationId: GetTillerStatus
+      description: GetTillerStatus checks if tiller ready to accept deployments
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          type: number
+          required: true
+          description: Selected cluster identification (number)
+      responses:
+        '200':
+          description: Tiller available
+          schema:
+            type: object
+            properties:
+              status:
+                type: number
+                enum:
+                  - 200
+              message:
+                type: string
+                enum:
+                  - Tiller available
+        '503':
+          description: Tiller not available
+          schema:
+            type: object
+            properties:
+              status:
+                type: number
+                enum:
+                  - 503
+              message:
+                type: string
+                enum:
+                  - Tiller not available
+  /clusters/{id}/deployments/{name}:
+    delete:
+      tags:
+        - deployment
+      summary: deletes a Helm deployment
+      operationId: DeleteDeployment
+      description: DeleteDeployment deletes a Helm deployment
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          type: number
+          required: true
+          description: Selected cluster identification (number)
+        - name: name
+          in: path
+          type: string
+          required: true
+          description: deployment name
+      responses:
+        '200':
+          description: Delete deployment succeeded
+          schema:
+            type: object
+            properties:
+              status:
+                type: number
+                enum:
+                  - 200
+              message:
+                type: string
+                enum:
+                  - success
+        '404':
+          description: error during delete deployment
+    head:
+      tags:
+        - deployment
+      summary: check deployment status
+      operationId: HelmDeploymentStatus
+      description: Check the status of a deployment through the helm client API
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          type: number
+          required: true
+          description: Selected cluster identification (number)
+        - name: name
+          in: path
+          type: string
+          required: true
+          description: deployment name
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+            properties:
+              status:
+                type: number
+                enum:
+                  - 200
+              message:
+                type: string
+                example: Deployment status running
+
+  /status:
+    get:
+      tags:
+        - status
+      summary: status of the subsystems
+      operationId: status
+      description: |
+        Queries the status of the subsystems
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: status of the subsystems
+          schema:
+            $ref: '#/definitions/Status'
+
+  /token:
+    get:
+      tags:
+        - auth
+      summary: generate auth token
+      operationId: GenerateToken
+      description: generate auth token
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+            properties:
+              token:
+                type: string
+                example: signedToken
+        '500':
+          description: Failed to sign token
+
+definitions:
+  Status:
+    type: object
+    properties:
+      'Cluster running, subsystems initialized':
+        type: number
+        example: 200
+  CreateClusterRequest:
+    type: object
+    required:
+      - name
+      - location
+      - cloud
+      - nodeInstanceType
+      - properties
+    properties:
+      name:
+        type: string
+        example: MyCluster-Sanyi
+      location:
+        type: string
+        example: eu-west-1
+      cloud:
+        type: string
+        example: amazon
+      nodeInstanceType:
+        type: string
+        example: m4.xlarge
+      properties:
+        $ref: '#/definitions/CreateClusterProperties'
+  CreateClusterProperties:
+    type: object
+    properties:
+      amazon:
+        $ref: '#/definitions/CreateClusterAmazonProperties'
+      azure:
+        $ref: '#/definitions/CreateClusterAzureProperties'
+  CreateClusterAmazonProperties:
+    type: object
+    required:
+      - node
+      - master
+    properties:
+      node:
+        $ref: '#/definitions/CreateAmazonNode'
+      master:
+        $ref: '#/definitions/CreateAmazonMaster'
+  CreateAmazonNode:
+    type: object
+    properties:
+      spotPrice:
+        type: number
+        example: 0.2
+      minCount:
+        type: number
+        example: 1
+      maxCount:
+        type: number
+        example: 2
+      image:
+        type: string
+        example: ami-294ffd50
+  CreateAmazonMaster:
+    type: object
+    properties:
+      instanceType:
+        type: string
+        example: m4.xlarge
+      image:
+        type: string
+        example: ami-294ffd50
+  CreateClusterAzureProperties:
+    type: object
+    required:
+      - node
+    properties:
+      node:
+        $ref: '#/definitions/CreateAzureNode'
+  CreateAzureNode:
+    type: object
+    required:
+      - resourceGroup
+    properties:
+      resourceGroup:
+        type: string
+        example: resourceGroup
+      agentCount:
+        type: number
+        example: 10
+      agentName:
+        type: string
+        example: agentName
+      kubernetesVersion:
+        type: string
+        example: v1.9.1
+  CreateClusterRequestSuccess:
+    type: object
+    properties:
+      status:
+        type: number
+        example: 201
+      message:
+        type: string
+        example: Cluster created successfully!
+      resourceId:
+        type: string
+        example: resourceId
+      name:
+        type: string
+        example: name
+      Ip:
+        type: string
+        example: 123.123.123.123
+  ClusterRepresentation:
+    type: object
+    properties:
+      id:
+        type: number
+        example: 51312312
+      name:
+        type: string
+        example: clusterName
+      cloud:
+        type: string
+        example: CloudType
+      amazon:
+        $ref: '#/definitions/AmazonRepresentation'
+      azure:
+        $ref: '#/definitions/AzureRepresentation'
+  AmazonRepresentation:
+    type: object
+    properties:
+      ip:
+        type: string
+        example: 123.123.123.123
+  AzureRepresentation:
+    type: object
+    properties:
+      value:
+        $ref: '#/definitions/AzureValue'
+  AzureValue:
+    type: object
+    properties:
+      id:
+        type: string
+        example: id
+      location:
+        type: string
+        example: location
+      name:
+        type: string
+        example: name
+      properties:
+        $ref: '#/definitions/AzureProperties'
+  AzureProperties:
+    type: object
+    properties:
+      provisioningState:
+        type: string
+        example: provisioningState
+      agentPoolProfiles:
+        type: array
+        items:
+          $ref: '#/definitions/AzureProfile'
+  AzureProfile:
+    type: object
+    properties:
+      name:
+        type: string
+        example: name
+      count:
+        type: number
+        example: 5
+  GetClusterInfoAmazon:
+    type: object
+    properties:
+      status:
+        type: number
+        example: 200
+      data:
+        $ref: '#/definitions/Cluster'
+      available:
+        type: string
+        example: isAvailable
+      Ip:
+        type: string
+        example: 123.123.123.123
+  Cluster:
+    allOf:
+      - $ref: '#/definitions/TypeMeta'
+      - type: object
+        properties:
+          metadata:
+            $ref: >-
+              https://raw.githubusercontent.com/kubernetes/kubernetes/master/api/openapi-spec/swagger.json#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.ObjectMeta
+          name:
+            type: string
+          cloudId:
+            type: string
+          serverPools:
+            type: array
+            items:
+              $ref: '#/definitions/ServerPool'
+          cloud:
+            type: string
+          location:
+            type: string
+          SSH:
+            $ref: '#/definitions/SSH'
+          network:
+            $ref: '#/definitions/Network'
+          values:
+            $ref: '#/definitions/KubicornValues'
+          kubernetesAPI:
+            $ref: '#/definitions/KubernetesAPI'
+          groupIdentifier:
+            type: string
+  ServerPool:
+    type: object
+    properties:
+      identifier:
+        type: string
+      minCount:
+        type: number
+      maxCount:
+        type: number
+      type:
+        type: string
+      name:
+        type: string
+      image:
+        type: string
+      size:
+        type: string
+      instanceProfile:
+        $ref: '#/definitions/IAMInstanceProfile'
+      bootstrapScripts:
+        type: array
+        items:
+          type: string
+      subnets:
+        $ref: '#/definitions/Subnet'
+      firewalls:
+        $ref: '#/definitions/Firewall'
+      awsconfiguration:
+        $ref: '#/definitions/AwsConfiguration'
+  AwsConfiguration:
+    type: object
+    properties:
+      spotPrice:
+        type: string
+  IAMInstanceProfile:
+    allOf:
+      - $ref: '#/definitions/TypeMeta'
+      - type: object
+        properties:
+          metadata:
+            $ref: >-
+              https://raw.githubusercontent.com/kubernetes/kubernetes/master/api/openapi-spec/swagger.json#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.ObjectMeta
+          name:
+            type: string
+          identifier:
+            type: string
+          role:
+            $ref: '#/definitions/IAMRole'
+  IAMRole:
+    allOf:
+      - $ref: '#/definitions/TypeMeta'
+      - type: object
+        properties:
+          metadata:
+            $ref: >-
+              https://raw.githubusercontent.com/kubernetes/kubernetes/master/api/openapi-spec/swagger.json#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.ObjectMeta
+          name:
+            type: string
+          identifier:
+            type: string
+          policies:
+            type: array
+            items:
+              $ref: '#/definitions/IAMPolicy'
+  IAMPolicy:
+    type: object
+    properties:
+      name:
+        type: string
+      document:
+        type: string
+      identifier:
+        type: string
+  Subnet:
+    allOf:
+      - $ref: '#/definitions/TypeMeta'
+      - type: object
+        properties:
+          metadata:
+            $ref: >-
+              https://raw.githubusercontent.com/kubernetes/kubernetes/master/api/openapi-spec/swagger.json#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.ObjectMeta
+          identifier:
+            type: string
+          cidr:
+            type: string
+          location:
+            type: string
+          zone:
+            type: string
+          name:
+            type: string
+  Firewall:
+    allOf:
+      - $ref: '#/definitions/TypeMeta'
+      - type: object
+        properties:
+          metadata:
+            $ref: >-
+              https://raw.githubusercontent.com/kubernetes/kubernetes/master/api/openapi-spec/swagger.json#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.ObjectMeta
+          identifier:
+            type: string
+          ingressRules:
+            type: array
+            items:
+              $ref: '#/definitions/IngressRule'
+          egressRules:
+            type: array
+            items:
+              $ref: '#/definitions/EgressRule'
+          name:
+            type: string
+  Shared:
+    allOf:
+      - $ref: '#/definitions/TypeMeta'
+      - type: object
+        properties:
+          metadata:
+            $ref: >-
+              https://raw.githubusercontent.com/kubernetes/kubernetes/master/api/openapi-spec/swagger.json#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.ObjectMeta
+          identifier:
+            type: string
+  IngressRule:
+    allOf:
+      - $ref: '#/definitions/Shared'
+      - type: object
+        properties:
+          ingressFromPort:
+            type: string
+          ingressToPort:
+            type: string
+          ingressSource:
+            type: string
+          ingressProtocol:
+            type: string
+  EgressRule:
+    allOf:
+      - $ref: '#/definitions/Shared'
+      - type: object
+        properties:
+          engressToPort:
+            type: string
+          engressDestination:
+            type: string
+          engressProtocol:
+            type: string
+  TypeMeta:
+    type: object
+    properties:
+      kind:
+        type: string
+      apiVersion:
+        type: string
+  SSH:
+    allOf:
+      - $ref: '#/definitions/TypeMeta'
+      - type: object
+        properties:
+          metadata:
+            $ref: >-
+              https://raw.githubusercontent.com/kubernetes/kubernetes/master/api/openapi-spec/swagger.json#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.ObjectMeta
+          name:
+            type: string
+          user:
+            type: string
+          identifier:
+            type: string
+          publicKeyPath:
+            type: string
+          publicKeyData:
+            type: array
+            items:
+              type: integer
+          publicKeyFingerprint:
+            type: string
+          port:
+            type: string
+  Network:
+    allOf:
+      - $ref: '#/definitions/TypeMeta'
+      - type: object
+        properties:
+          metadata:
+            $ref: >-
+              https://raw.githubusercontent.com/kubernetes/kubernetes/master/api/openapi-spec/swagger.json#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.ObjectMeta
+          cidr:
+            type: string
+          identifier:
+            type: string
+          type:
+            type: string
+          internetgw:
+            $ref: '#/definitions/InternetGW'
+  InternetGW:
+    allOf:
+      - $ref: '#/definitions/TypeMeta'
+      - type: object
+        properties:
+          metadata:
+            $ref: >-
+              https://raw.githubusercontent.com/kubernetes/kubernetes/master/api/openapi-spec/swagger.json#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.ObjectMeta
+          name:
+            type: string
+          identifier:
+            type: string
+  KubicornValues:
+    allOf:
+      - $ref: '#/definitions/TypeMeta'
+      - type: object
+        properties:
+          metadata:
+            $ref: >-
+              https://raw.githubusercontent.com/kubernetes/kubernetes/master/api/openapi-spec/swagger.json#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.ObjectMeta
+          itemMap:
+            type: object
+            additionalProperties:
+              type: string
+  KubernetesAPI:
+    allOf:
+      - $ref: '#/definitions/TypeMeta'
+      - type: object
+        properties:
+          metadata:
+            $ref: >-
+              https://raw.githubusercontent.com/kubernetes/kubernetes/master/api/openapi-spec/swagger.json#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.ObjectMeta
+          endpoint:
+            type: string
+          port:
+            type: string
+  GetClusterInfoAzure:
+    type: object
+    properties:
+      status_code:
+        type: integer
+      message:
+        $ref: '#/definitions/AzureValue'
+  UpdateClusterRequest:
+    type: object
+    required:
+      - cloud
+    properties:
+      cloud:
+        type: string
+      properties:
+        $ref: '#/definitions/UpdateClusterProperties'
+  UpdateClusterProperties:
+    type: object
+    properties:
+      amazon:
+        $ref: '#/definitions/UpdateClusterAmazon'
+      azure:
+        $ref: '#/definitions/UpdateClusterAzure'
+  UpdateClusterAmazon:
+    type: object
+    properties:
+      node:
+        $ref: '#/definitions/UpdateAmazonNode'
+  UpdateClusterAzure:
+    type: object
+    properties:
+      node:
+        $ref: '#/definitions/UpdateAzureNode'
+  UpdateAmazonNode:
+    type: object
+    properties:
+      minCount:
+        type: integer
+      maxCount:
+        type: integer
+  UpdateAzureNode:
+    type: object
+    properties:
+      agentCount:
+        type: integer
+  HelmDeploymentType:
+    type: object
+    properties:
+      name:
+        type: string
+      realeasename:
+        type: string
+      version:
+        type: string
+      values:
+        type: object
+  BansaiHelmInstall:
+    type: object
+    required:
+      - namespace
+      - service_account
+    properties:
+      kube_context:
+        type: string
+      namespace:
+        type: string
+      upgrade:
+        type: boolean
+      service_account:
+        type: string
+      canary_image:
+        type: boolean
+      tiller_image:
+        type: string
+      history_max:
+        type: integer
+
+host: virtserver.swaggerhub.com
+basePath: /banzaicloud/pipeline/0.2.0
+schemes:
+  - https
