@@ -9,6 +9,8 @@ info:
     name: Apache 2.0
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
 tags:
+  - name: cluster
+    description: Cluster realted funtions
   - name: clusters
     description: Clusters realted funtions
 paths:
@@ -16,7 +18,8 @@ paths:
     post:
       tags:
         - clusters
-      summary: Create a new K8S cluster in the cloud
+      summary: Create cluster
+      description: Create a new K8S cluster in the cloud
       operationId: CreateCluster
       responses:
         '200':
@@ -66,6 +69,115 @@ paths:
                   location: "us-central1-a"
                   cloud: "google"
                   nodeInstanceType: "n1-standard-1"
+                  properties:
+                    google:
+                      $ref: '#components/schemas/CreateGoogleProperties'
+    get:
+      tags:
+        - clusters
+      summary: List clusters
+      operationId: ListClusters
+      description: Listing all the K8S clusters from the cloud
+      responses:
+        '200':
+          description: All cluster listed
+          content:
+            application/json:
+             schema:
+                $ref: '#/components/schemas/ClusterListResponse'
+        '400':
+          description: Error during listing clusters
+          content:
+            application/json:
+             schema:
+                $ref: '#/components/schemas/BaseError_400'
+
+  '/clusters/{id}':
+    get:
+      tags:
+        - cluster
+      summary: Get cluster
+      description: Getting cluster details
+      operationId: GetCluster
+      parameters:
+        - name: id
+          in: path
+          description: Selected cluster identification (number)
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Getting cluster succeeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateClusterResponse_200'
+        '400':
+          description: Error during getting cluster details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseError_400'
+        '404':
+          description: Cluster not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClusterNotFound'
+
+    put:
+      tags:
+        - cluster
+      summary: Update cluster
+      description: Updating an existing K8S cluster
+      operationId: UpdateCluster
+      parameters:
+        - name: id
+          in: path
+          description: Selected cluster identification (number)
+          required: true
+          schema:
+            type: integer
+      responses:
+        '202':
+          description: Cluster update accepted
+        '400':
+          description: Error during updating cluster
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseError_400'
+        '404':
+          description: Cluster not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClusterNotFound'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateClusterRequest'
+            examples:
+              AWS:
+                value:
+                  cloud: "amazon"
+                  properties:
+                    properties:
+                      amazon:
+                        $ref: '#components/schemas/CreateAmazonProperties'
+
+              AKS:
+                value:
+                  cloud: "azure"
+                  properties:
+                    azure:
+                      $ref: '#components/schemas/CreateAzureProperties'
+
+              GKE:
+                value:
+                  cloud: "google"
                   properties:
                     google:
                       $ref: '#components/schemas/CreateGoogleProperties'
@@ -152,15 +264,15 @@ components:
           properties:
             version:
               type: string
-            node:
-              type: object
-              properties:
-                count:
-                  type: string
-                version:
-                  type: string
-                serviceAccount:
-                  type: string
+        node:
+          type: object
+          properties:
+            count:
+              type: string
+            version:
+              type: string
+            serviceAccount:
+              type: string
 
     CreateClusterResponse_200:
       type: object
@@ -196,6 +308,92 @@ components:
         error:
           type: string
           example: Invalid version
+
+    ClusterListResponse:
+      type: array
+      items:
+        $ref: '#components/schemas/CreateClusterResponse_200'
+
+    BaseError_400:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 400
+        message:
+          type: string
+          example: "Error during process"
+        error:
+          type: string
+          example: "Error during process"
+
+    ClusterNotFound:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 404
+        message:
+          type: string
+          example: "Cluster not found"
+        error:
+          type: string
+          example: "record not found"
+
+    UpdateClusterRequest:
+      type: object
+      required:
+        - cloud
+        - properties
+      properties:
+        cloud:
+          type: string
+        properties:
+          type: object
+
+    UpdateAmazonProperties:
+      type: object
+      properties:
+        node:
+          type: object
+          properties:
+            minCount:
+              type: integer
+              example: 2
+            maxCount:
+              type: integer
+              example: 4
+
+    UpdateAzureProperties:
+      type: object
+      properties:
+        node:
+          type: object
+          properties:
+            agentCount:
+              type: integer
+              example: 2
+
+    UpdateGoogleProperties:
+      type: object
+      properties:
+        master:
+          type: object
+          properties:
+            version:
+              type: string
+        node:
+          type: object
+          properties:
+            count:
+              type: string
+            version:
+              type: string
+            serviceAccount:
+              type: string
+
+
+
 
 
 
