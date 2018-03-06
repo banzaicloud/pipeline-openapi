@@ -181,7 +181,38 @@ paths:
                   properties:
                     google:
                       $ref: '#components/schemas/CreateGoogleProperties'
-
+    delete:
+      tags:
+        - cluster
+      summary: Delete cluster
+      description: Deleting a K8S cluster
+      operationId: DeleteCluster
+      parameters:
+        - name: id
+          in: path
+          description: Selected cluster identification (number)
+          required: true
+          schema:
+            type: integer
+      responses:
+        '202':
+          description: Cluster deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClusterDelete_200'
+        '400':
+          description: Error during deleting cluster
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseError_400'
+        '404':
+          description: Cluster not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClusterNotFound'
 components:
   schemas:
 
@@ -392,6 +423,21 @@ components:
             serviceAccount:
               type: string
 
+    ClusterDelete_200:
+      type: object
+      properties:
+        status:
+          type: integer
+          example: 202
+        name:
+          type: string
+          example: "gkecluster-pipelineuser-123"
+        message:
+          type: string
+          example: "Cluster deleted successfully"
+        id:
+          type: integer
+          example: 1
 
 
 
