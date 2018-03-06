@@ -1,0 +1,202 @@
+openapi: 3.0.0
+info:
+  description: Pipeline v0.3.0 swagger
+  version: "0.3.0"
+  title: Pipeline API
+  contact:
+    email: info@banzaicloud.com
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+tags:
+  - name: clusters
+    description: Clusters realted funtions
+paths:
+  /clusters:
+    post:
+      tags:
+        - clusters
+      summary: Create a new K8S cluster in the cloud
+      operationId: CreateCluster
+      responses:
+        '200':
+          description: Cluster created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateClusterResponse_200'
+        '400':
+          description: Cluster creation failed
+          content:
+            application/json:
+             schema:
+                $ref: '#/components/schemas/CreateClusterResponse_400'
+
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateClusterRequest'
+
+            examples:
+              AWS:
+                value:
+                  name: "awscluster-pipelineuser-123"
+                  location: "eu-west-1"
+                  cloud: "amazon"
+                  nodeInstanceType: "m4.xlarge"
+                  properties:
+                    properties:
+                      amazon:
+                        $ref: '#components/schemas/CreateAmazonProperties'
+
+              AKS:
+                value:
+                  name: "azcluster-pipelineuser-123"
+                  location: "westeurope"
+                  cloud: "azure"
+                  nodeInstanceType: "Standard_D2_v2"
+                  properties:
+                    azure:
+                      $ref: '#components/schemas/CreateAzureProperties'
+
+              GKE:
+                value:
+                  name: "gkecluster-pipelineuser-123"
+                  location: "us-central1-a"
+                  cloud: "google"
+                  nodeInstanceType: "n1-standard-1"
+                  properties:
+                    google:
+                      $ref: '#components/schemas/CreateGoogleProperties'
+
+components:
+  schemas:
+
+    CreateClusterRequest:
+      type: object
+      required:
+        - name
+        - location
+        - nodeInstanceType
+        - cloud
+        - properties
+      properties:
+        name:
+          type: string
+          example: "gkecluster-pipelineuser-123"
+        location:
+          type: string
+          example: "us-central1-a"
+        nodeInstanceType:
+          type: string
+          example: "n1-standard-1"
+        cloud:
+          type: string
+          example: "google"
+        properties:
+          type: object
+
+    CreateAmazonProperties:
+      type: object
+      required:
+        - master
+        - node
+      properties:
+        master:
+          type: object
+          properties:
+            instanceType:
+              type: string
+            image:
+              type: string
+        node:
+          type: object
+          properties:
+            spotPrice:
+              type: string
+            minCount:
+              type: integer
+            maxCount:
+              type: integer
+            image:
+              type: string
+    CreateAzureProperties:
+      type: object
+      required:
+        - node
+      properties:
+        node:
+          type: object
+          required:
+            - resourceGroup
+          properties:
+            resourceGroup:
+              type: string
+            agentCount:
+              type: integer
+            agentName:
+              type: string
+            kubernetesVersion:
+              type: string
+
+    CreateGoogleProperties:
+      type: object
+      required:
+         - project
+      properties:
+        project:
+          type: string
+        master:
+          type: object
+          properties:
+            version:
+              type: string
+            node:
+              type: object
+              properties:
+                count:
+                  type: string
+                version:
+                  type: string
+                serviceAccount:
+                  type: string
+
+    CreateClusterResponse_200:
+      type: object
+      properties:
+        status:
+          type: integer
+          example: 200
+        name:
+          type: string
+          example: "gkecluster-pipelineuser-123"
+        location:
+          type: string
+          example: "us-central1-a"
+        cloud:
+          type: string
+          example: "google"
+        nodeInstanceType:
+          type: string
+          example: "n1-standard-1"
+        id:
+          type: integer
+          example: 1
+
+    CreateClusterResponse_400:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 400
+        message:
+          type: string
+          example: Invalid version
+        error:
+          type: string
+          example: Invalid version
+
+
+
+
