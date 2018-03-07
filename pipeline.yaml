@@ -16,6 +16,8 @@ tags:
 paths:
   /clusters:
     post:
+      security:
+        - bearerAuth: []
       tags:
         - clusters
       summary: Create cluster
@@ -34,7 +36,12 @@ paths:
             application/json:
              schema:
                 $ref: '#/components/schemas/CreateClusterResponse_400'
-
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
       requestBody:
         content:
           application/json:
@@ -73,6 +80,8 @@ paths:
                     google:
                       $ref: '#components/schemas/CreateGoogleProperties'
     get:
+      security:
+        - bearerAuth: []
       tags:
         - clusters
       summary: List clusters
@@ -91,9 +100,16 @@ paths:
             application/json:
              schema:
                 $ref: '#/components/schemas/BaseError_400'
-
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
   '/clusters/{id}':
     get:
+      security:
+        - bearerAuth: []
       tags:
         - cluster
       summary: Get cluster
@@ -119,6 +135,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BaseError_400'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
         '404':
           description: Cluster not found
           content:
@@ -127,6 +149,8 @@ paths:
                 $ref: '#/components/schemas/ClusterNotFound'
 
     put:
+      security:
+        - bearerAuth: []
       tags:
         - cluster
       summary: Update cluster
@@ -148,6 +172,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BaseError_400'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
         '404':
           description: Cluster not found
           content:
@@ -182,6 +212,8 @@ paths:
                     google:
                       $ref: '#components/schemas/CreateGoogleProperties'
     delete:
+      security:
+        - bearerAuth: []
       tags:
         - cluster
       summary: Delete cluster
@@ -207,6 +239,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BaseError_400'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
         '404':
           description: Cluster not found
           content:
@@ -214,6 +252,13 @@ paths:
               schema:
                 $ref: '#/components/schemas/ClusterNotFound'
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+
   schemas:
 
     CreateClusterRequest:
@@ -439,7 +484,18 @@ components:
           type: integer
           example: 1
 
-
+    Unauthorized:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 401
+        message:
+          type: string
+          example: "Invalid token"
+        error:
+          type: string
+          example: "token contains an invalid number of segments"
 
 
 
