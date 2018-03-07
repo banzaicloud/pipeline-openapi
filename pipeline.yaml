@@ -13,6 +13,10 @@ tags:
     description: Cluster realted funtions
   - name: clusters
     description: Clusters realted funtions
+  - name: deployment
+    description: Functions related for a deployment
+  - name: deployments
+    description: Deployment related functions for a cluster
 paths:
   /clusters:
     post:
@@ -43,6 +47,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Unauthorized'
       requestBody:
+        required: true
         content:
           application/json:
             schema:
@@ -185,6 +190,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ClusterNotFound'
       requestBody:
+        required: true
         content:
           application/json:
             schema:
@@ -251,6 +257,382 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ClusterNotFound'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseError_500'
+
+    head:
+      security:
+        - bearerAuth: []
+      tags:
+        - cluster
+      summary: Get cluster status
+      operationId: GetClusterStatus
+      description: Getting the K8S cluster status
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Selected cluster identification (number)
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Cluster deleted successfully
+        '400':
+          description: Error during getting cluster status
+        '401':
+          description: Unauthorized
+        '404':
+          description: Cluster not found
+
+  '/clusters/{id}/config':
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+       - cluster
+      summary: Get a cluster config
+      operationId: GetClusterConfig
+      description: Getting a K8S cluster config file
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Selected cluster identification (number)
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: "Getting config file succeeded"
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "encoded configuration file..."
+        '400':
+          description: "Error during getting config file"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseError_400'
+        '401':
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '404':
+          description: "Cluster not found"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClusterNotFound'
+  '/clusters/{id}/endpoints':
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - cluster
+      summary: List service public endpoints
+      operationId: ListEndpoints
+      description: List service public endpoints
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Selected cluster identification (number)
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: "Endpoints listed"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListEndpointsResponse'
+        '400':
+          description: "Error during getting endpoints"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseError_400'
+        '401':
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '404':
+          description: "Cluster not found"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClusterNotFound'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseError_500'
+
+  '/clusters/{id}/helminit':
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+       - cluster
+      summary: Initialize helm
+      operationId: HelmInit
+      description: Initialize helm in the cluster
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Selected cluster identification (number)
+          schema:
+            type: integer
+      responses:
+        '201':
+          description: "Helm initialized int the cluster"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HelmInitResponse'
+        '400':
+          description: "Error during getting endpoints"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseError_400'
+        '401':
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '404':
+          description: "Cluster not found"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClusterNotFound'
+
+  '/clusters/{id}/deployments':
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - deployments
+      summary: List deployments
+      operationId: ListDeployments
+      description: Listing Helm deployments
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Selected cluster identification (number)
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: "Deployments listed"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListDeploymentsResponse'
+        '400':
+          description: "Error during getting endpoints"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseError_400'
+        '401':
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '404':
+          description: "Cluster not found"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClusterNotFound'
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - deployments
+      summary: Create a Helm deployment
+      operationId: CreateDeployment
+      description: Creating a Helm deployment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Selected cluster identification (number)
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateDeploymentRequest'
+      responses:
+        '201':
+          description: "Deployment created successfully"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateDeploymentResponse'
+        '401':
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '400':
+          description: "Error during creating deployment"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseError_400'
+        '404':
+          description: "Cluster not found"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClusterNotFound'
+    head:
+      security:
+        - bearerAuth: []
+      tags:
+        - deployments
+      summary: Get tiller status
+      operationId: GetTillerStatus
+      description: Checking if tiller ready to accept deployments
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Selected cluster identification (number)
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: "Tiller is available"
+        '400':
+          description: "Error during creating deployment"
+        '401':
+          description: "Unauthorized"
+        '404':
+          description: "Cluster not found"
+
+  '/clusters/{id}/deployments/{name}':
+      delete:
+        security:
+          - bearerAuth: []
+        tags:
+          - deployment
+        summary: Delete deployment
+        operationId: DeleteDeployment
+        description: Deleting a Helm deployment
+        parameters:
+          - name: id
+            in: path
+            required: true
+            description: Selected cluster identification (number)
+            schema:
+              type: integer
+          - name: name
+            in: path
+            required: true
+            description: deployment name
+            schema:
+              type: string
+        responses:
+          '200':
+            description: "Deployment deleted successfully"
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/DeleteDeploymentResponse'
+          '400':
+            description: "Error during delete deployment"
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/BaseError_400'
+          '401':
+            description: "Unauthorized"
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Unauthorized'
+          '404':
+            description: "Cluster not found"
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/ClusterNotFound'
+
+      put:
+        security:
+          - bearerAuth: []
+        tags:
+          - deployment
+        summary: Update deployment
+        operationId: UpdateDeployment
+        description: Updating a Helm deployment
+        parameters:
+          - name: id
+            in: path
+            required: true
+            description: Selected cluster identification (number)
+            schema:
+              type: integer
+          - name: name
+            in: path
+            required: true
+            description: deployment name
+            schema:
+              type: string
+        responses:
+          '501':
+            description: "Not implemented"
+      head:
+        tags:
+         - deployment
+        summary: Check deployment status
+        operationId: HelmDeploymentStatus
+        description: Checking the status of a deployment through the helm client API
+        parameters:
+          - name: id
+            in: path
+            required: true
+            description: Selected cluster identification (number)
+            schema:
+              type: integer
+          - name: name
+            in: path
+            required: true
+            description: deployment name
+            schema:
+              type: string
+        responses:
+          '200':
+            description: "Deployment status is OK"
+          '400':
+            description: "Error during checking deployment status"
+          '401':
+            description: "Unauthorized"
+          '404':
+            description: "Cluster not found"
 components:
   securitySchemes:
     bearerAuth:
@@ -403,6 +785,19 @@ components:
           type: string
           example: "Error during process"
 
+    BaseError_500:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 500
+        message:
+          type: string
+          example: "Error during process"
+        error:
+          type: string
+          example: "Error during process"
+
     ClusterNotFound:
       type: object
       properties:
@@ -496,6 +891,108 @@ components:
         error:
           type: string
           example: "token contains an invalid number of segments"
+
+    ListEndpointsResponse:
+      type: object
+      properties:
+        endpoints:
+          type: array
+          items:
+            $ref: '#components/schemas/EndpointItem'
+
+    EndpointItem:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "pipeline-traefik"
+        host:
+          type: string
+          example: "11.11.11.111"
+        urls:
+          type: array
+          items:
+            $ref: '#components/schemas/URLItem'
+          example:
+
+    URLItem:
+      type: object
+      properties:
+        servicename:
+          type: string
+          example: "serviceName"
+        url:
+          type: string
+          example: "url"
+
+    ListDeploymentsResponse:
+      type: array
+      items:
+        type: object
+        properties:
+          name:
+            type: string
+            example: "pipeline"
+          chart:
+            type: string
+            example: "pipeline-cluster-ingress-0.0.1"
+          version:
+            type: integer
+            example: 1
+          updated:
+            type: string
+            example: "Wed Mar  7 09:56:57 2018"
+          status:
+            type: string
+            example: "DEPLOYED"
+
+    CreateDeploymentRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          example: "banzaicloud-stable/drone"
+        releasename:
+          type: string
+        version:
+          type: string
+        values:
+          type: object
+
+    CreateDeploymentResponse:
+      type: object
+      properties:
+        release_name:
+          type: string
+          example: "vigilant-mandrill"
+        notes:
+          type: string
+          example: "deploy notes"
+
+    DeleteDeploymentResponse:
+      type: object
+      properties:
+        status:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: "Deployment deleted!"
+        name:
+          type: string
+          example: "vigilant-mandrill"
+
+    HelmInitResponse:
+      type: object
+      properties:
+        status:
+          type: integer
+          example: 201
+        message:
+          type: string
+          example: "helm initialising"
 
 
 
