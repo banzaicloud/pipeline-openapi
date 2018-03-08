@@ -19,6 +19,8 @@ tags:
     description: Deployment related functions for a cluster
   - name: profiles
     description: Cluster profiles related functions
+  - name: auth
+    description: Auth related functions
 paths:
   /clusters:
     post:
@@ -644,7 +646,170 @@ paths:
             application/json:
               schema:
                 $ref: '#components/schemas/ProfileListResponse'
+        '400':
+            description: "Error during delete deployment"
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/BaseError_400'
+        '401':
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
 
+  '/cluster/profiles':
+    post:
+      security:
+          - bearerAuth: []
+      tags:
+        - profiles
+      summary: Add cluster profiles
+      operationId: AddProfiles
+      description: Add cluster profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddClusterProfileRequest'
+      responses:
+        '201':
+          description: "Cluster profile created successfully"
+        '400':
+            description: "Error during delete deployment"
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/BaseError_400'
+        '401':
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+
+    put:
+      security:
+          - bearerAuth: []
+      tags:
+        - profiles
+      summary: Update cluster profiles
+      operationId: UpdateProfiles
+      description: Update an existing cluster profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddClusterProfileRequest'
+      responses:
+        '201':
+          description: "Cluster profile updated successfully"
+        '400':
+          description: Error during updating cluster profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseError_400'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '404':
+          description: Cluster profile not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClusterProfileNotFound'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseError_500'
+
+  '/cluster/profiles/{type}/{name}':
+    delete:
+      security:
+          - bearerAuth: []
+      tags:
+        - profiles
+      summary: Delete cluster profiles
+      operationId: DeleteProfiles
+      description: Delete cluster profiles by cloud type and name
+      parameters:
+        - name: type
+          in: path
+          required: true
+          description: Cloud type
+          schema:
+            type: string
+        - name: name
+          in: path
+          required: true
+          description: Cluster profile name
+          schema:
+            type: string
+      responses:
+        '201':
+          description: "Cluster profile deleted successfully"
+        '400':
+          description: Error during deleting cluster profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseError_400'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '404':
+          description: Cluster profile not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClusterProfileNotFound'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseError_500'
+
+  /token:
+    get:
+      security:
+          - bearerAuth: []
+      tags:
+        - auth
+      summary: Generate token
+      operationId: GetToken
+      description: Generate token
+      responses:
+        '200':
+          description: Token generated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseError_500'
 
 components:
   securitySchemes:
@@ -652,7 +817,6 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
-
 
   schemas:
 
@@ -863,6 +1027,19 @@ components:
         message:
           type: string
           example: "Cluster not found"
+        error:
+          type: string
+          example: "record not found"
+
+    ClusterProfileNotFound:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 404
+        message:
+          type: string
+          example: "Profile not found"
         error:
           type: string
           example: "record not found"
@@ -1179,7 +1356,7 @@ components:
         google:
           type: object
           properties:
-            master: 
+            master:
               type: object
               properties:
                 version:
@@ -1198,5 +1375,119 @@ components:
                   type: string
                   example: "serviceAccountExample"
 
+    AddClusterProfileRequest:
+      type: object
+      properties:
+        instanceName:
+          type: string
+          example: "myCluster-profile"
+        location:
+          type: string
+          example: "us-central1-a"
+        cloud:
+          type: string
+          example: "google"
+        nodeInstanceType:
+          type: string
+          example: "n1-standard-1"
+        properties:
+          type: object
+          oneOf:
+            - $ref: '#components/schemas/AddClusterProfileAmazon'
+            - $ref: '#components/schemas/AddClusterProfileAzure'
+            - $ref: '#components/schemas/AddClusterProfileGoogle'
+          example:
+            google:
+              master:
+                version: "1.8.7-gke.1"
+              node:
+                count: 1
+                version: "1.8.7-gke.1"
+
+    AddClusterProfileAmazon:
+      type: object
+      properties:
+        amazon:
+          type: object
+          properties:
+            master:
+              type: object
+              properties:
+                instanceType:
+                  type: string
+                  example: "m4.xlarge"
+                image:
+                  type: string
+                  example: "ami-06d1667f"
+            node:
+              type: object
+              properties:
+                spotPrice:
+                  type: string
+                  example: "0.2"
+                minCount:
+                  type: integer
+                  example: 1
+                maxCount:
+                  type: integer
+                  example: 2
+                image:
+                  type: string
+                  example: "ami-06d1667f"
+
+    AddClusterProfileAzure:
+      type: object
+      properties:
+        azure:
+          type: object
+          properties:
+            node:
+              type: object
+              properties:
+                resourceGroup:
+                  type: string
+                  example: "myRg"
+                agentCount:
+                  type: integer
+                  example: 1
+                agentName:
+                  type: string
+                  example: "agentpool1"
+                kubernetesVersion:
+                  type: string
+                  example: "1.8.2"
+
+    AddClusterProfileGoogle:
+      type: object
+      properties:
+        google:
+          type: object
+          properties:
+            master:
+              type: object
+              properties:
+                version:
+                  type: string
+                  example: "1.8.7-gke.1"
+            node:
+              type: object
+              properties:
+                count:
+                  type: integer
+                  example: 1
+                serviceAccount:
+                  type: string
+                  example: "serviceAccountExample"
+                version:
+                  type: string
+                  example: "1.8.7-gke.1"
+    Token:
+      type: object
+      required:
+        - token
+      properties:
+        token:
+          type: string
+          example: "jkjb342hb424j3b24"
 
 
