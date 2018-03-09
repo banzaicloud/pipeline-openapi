@@ -26,7 +26,7 @@ tags:
   - name: organizations
     description: Organizations related functions
 paths:
-  /clusters:
+  '/org/{orgId}/clusters':
     post:
       security:
         - bearerAuth: []
@@ -35,6 +35,13 @@ paths:
       summary: Create cluster
       description: Create a new K8S cluster in the cloud
       operationId: CreateCluster
+      parameters:
+        - name: orgId
+          in: path
+          required: true
+          description: Organization identification
+          schema:
+            type: integer
       responses:
         '200':
           description: Cluster created successfully
@@ -100,6 +107,13 @@ paths:
       summary: List clusters
       operationId: ListClusters
       description: Listing all the K8S clusters from the cloud
+      parameters:
+        - name: orgId
+          in: path
+          required: true
+          description: Organization identification
+          schema:
+            type: integer
       responses:
         '200':
           description: All cluster listed
@@ -119,7 +133,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Unauthorized'
-  '/clusters/{id}':
+  '/org/{orgId}/clusters/{id}':
     get:
       security:
         - bearerAuth: []
@@ -129,6 +143,12 @@ paths:
       description: Getting cluster details
       operationId: GetCluster
       parameters:
+        - name: orgId
+          in: path
+          required: true
+          description: Organization identification
+          schema:
+            type: integer
         - name: id
           in: path
           description: Selected cluster identification (number)
@@ -170,6 +190,12 @@ paths:
       description: Updating an existing K8S cluster
       operationId: UpdateCluster
       parameters:
+        - name: orgId
+          in: path
+          required: true
+          description: Organization identification
+          schema:
+            type: integer
         - name: id
           in: path
           description: Selected cluster identification (number)
@@ -213,6 +239,12 @@ paths:
       description: Deleting a K8S cluster
       operationId: DeleteCluster
       parameters:
+        - name: orgId
+          in: path
+          required: true
+          description: Organization identification
+          schema:
+            type: integer
         - name: id
           in: path
           description: Selected cluster identification (number)
@@ -260,6 +292,12 @@ paths:
       operationId: GetClusterStatus
       description: Getting the K8S cluster status
       parameters:
+        - name: orgId
+          in: path
+          required: true
+          description: Organization identification
+          schema:
+            type: integer
         - name: id
           in: path
           required: true
@@ -276,7 +314,7 @@ paths:
         '404':
           description: Cluster not found
 
-  '/clusters/{id}/config':
+  '/org/{orgId}/clusters/{id}/config':
     get:
       security:
         - bearerAuth: []
@@ -286,6 +324,12 @@ paths:
       operationId: GetClusterConfig
       description: Getting a K8S cluster config file
       parameters:
+        - name: orgId
+          in: path
+          required: true
+          description: Organization identification
+          schema:
+            type: integer
         - name: id
           in: path
           required: true
@@ -318,7 +362,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ClusterNotFound'
-  '/clusters/{id}/endpoints':
+  '/org/{orgId}/clusters/{id}/endpoints':
     get:
       security:
         - bearerAuth: []
@@ -328,6 +372,12 @@ paths:
       operationId: ListEndpoints
       description: List service public endpoints
       parameters:
+        - name: orgId
+          in: path
+          required: true
+          description: Organization identification
+          schema:
+            type: integer
         - name: id
           in: path
           required: true
@@ -366,7 +416,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/BaseError_500'
 
-  '/clusters/{id}/helminit':
+  '/org/{orgId}/clusters/{id}/helminit':
     post:
       security:
         - bearerAuth: []
@@ -376,6 +426,12 @@ paths:
       operationId: HelmInit
       description: Initialize helm in the cluster
       parameters:
+        - name: orgId
+          in: path
+          required: true
+          description: Organization identification
+          schema:
+            type: integer
         - name: id
           in: path
           required: true
@@ -414,7 +470,7 @@ paths:
             schema:
               $ref: '#/components/schemas/HelmInitRequest'
 
-  '/clusters/{id}/deployments':
+  '/org/{orgId}/clusters/{id}/deployments':
     get:
       security:
         - bearerAuth: []
@@ -424,6 +480,12 @@ paths:
       operationId: ListDeployments
       description: Listing Helm deployments
       parameters:
+        - name: orgId
+          in: path
+          required: true
+          description: Organization identification
+          schema:
+            type: integer
         - name: id
           in: path
           required: true
@@ -464,6 +526,12 @@ paths:
       operationId: CreateDeployment
       description: Creating a Helm deployment
       parameters:
+        - name: orgId
+          in: path
+          required: true
+          description: Organization identification
+          schema:
+            type: integer
         - name: id
           in: path
           required: true
@@ -510,6 +578,12 @@ paths:
       operationId: GetTillerStatus
       description: Checking if tiller ready to accept deployments
       parameters:
+        - name: orgId
+          in: path
+          required: true
+          description: Organization identification
+          schema:
+            type: integer
         - name: id
           in: path
           required: true
@@ -526,7 +600,7 @@ paths:
         '404':
           description: "Cluster not found"
 
-  '/clusters/{id}/deployments/{name}':
+  '/org/{orgId}/clusters/{id}/deployments/{name}':
       delete:
         security:
           - bearerAuth: []
@@ -536,6 +610,12 @@ paths:
         operationId: DeleteDeployment
         description: Deleting a Helm deployment
         parameters:
+          - name: orgId
+            in: path
+            required: true
+            description: Organization identification
+            schema:
+              type: integer
           - name: id
             in: path
             required: true
@@ -583,6 +663,12 @@ paths:
         operationId: UpdateDeployment
         description: Updating a Helm deployment
         parameters:
+          - name: orgId
+            in: path
+            required: true
+            description: Organization identification
+            schema:
+              type: integer
           - name: id
             in: path
             required: true
@@ -605,6 +691,12 @@ paths:
         operationId: HelmDeploymentStatus
         description: Checking the status of a deployment through the helm client API
         parameters:
+          - name: orgId
+            in: path
+            required: true
+            description: Organization identification
+            schema:
+              type: integer
           - name: id
             in: path
             required: true
@@ -627,7 +719,7 @@ paths:
           '404':
             description: "Cluster not found"
 
-  '/cluster/profiles/{type}':
+  '/org/{orgId}/cluster/profiles/{type}':
     get:
       security:
           - bearerAuth: []
@@ -637,6 +729,12 @@ paths:
       operationId: ListProfiles
       description: Listing cluster profiles by cloud type
       parameters:
+        - name: orgId
+          in: path
+          required: true
+          description: Organization identification
+          schema:
+            type: integer
         - name: type
           in: path
           required: true
@@ -663,7 +761,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Unauthorized'
 
-  '/cluster/profiles':
+  '/org/{orgId}/cluster/profiles':
     post:
       security:
           - bearerAuth: []
@@ -672,6 +770,13 @@ paths:
       summary: Add cluster profiles
       operationId: AddProfiles
       description: Add cluster profile
+      parameters:
+        - name: orgId
+          in: path
+          required: true
+          description: Organization identification
+          schema:
+            type: integer
       requestBody:
         required: true
         content:
@@ -702,6 +807,13 @@ paths:
       summary: Update cluster profiles
       operationId: UpdateProfiles
       description: Update an existing cluster profile
+      parameters:
+        - name: orgId
+          in: path
+          required: true
+          description: Organization identification
+          schema:
+            type: integer
       requestBody:
         required: true
         content:
@@ -736,7 +848,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/BaseError_500'
 
-  '/cluster/profiles/{type}/{name}':
+  '/org/{orgId}/cluster/profiles/{type}/{name}':
     delete:
       security:
           - bearerAuth: []
@@ -746,6 +858,12 @@ paths:
       operationId: DeleteProfiles
       description: Delete cluster profiles by cloud type and name
       parameters:
+        - name: orgId
+          in: path
+          required: true
+          description: Organization identification
+          schema:
+            type: integer
         - name: type
           in: path
           required: true
@@ -814,7 +932,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BaseError_500'
-  '/org/{id}/secrets':
+  '/org/{orgId}/secrets':
     get:
       security:
           - bearerAuth: []
@@ -824,7 +942,7 @@ paths:
       operationId: GetSecrets
       description: Listing secrets
       parameters:
-        - name: id
+        - name: orgId
           in: path
           required: true
           description: Organization identification
@@ -858,7 +976,7 @@ paths:
       operationId: AddSecrets
       description: Adding secrets
       parameters:
-        - name: id
+        - name: orgId
           in: path
           required: true
           description: Organization identification
@@ -895,7 +1013,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BaseError_500'
-  '/org/{id}/secrets/{secretId}':
+  '/org/{orgId}/secrets/{secretId}':
     delete:
       security:
           - bearerAuth: []
@@ -905,7 +1023,7 @@ paths:
       operationId: DeleteSecrets
       description: Deleting secrets
       parameters:
-        - name: id
+        - name: orgId
           in: path
           required: true
           description: Organization identification
