@@ -934,6 +934,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Unauthorized'
+        '404':
+          description: Secrets not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SecretsNotFound'
 
 components:
   securitySchemes:
@@ -1682,6 +1688,19 @@ components:
         value:
           type: string
           example: "mygoogleprojectid"
+
+    SecretsNotFound:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 404
+        message:
+          type: string
+          example: "Secrets not found"
+        error:
+          type: string
+          example: "There are no secrets with [1] organization id and [15205947761] secret id"
 
 
 
