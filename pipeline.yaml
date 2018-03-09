@@ -21,6 +21,8 @@ tags:
     description: Cluster profiles related functions
   - name: auth
     description: Auth related functions
+  - name: secrets
+    description: Secrets related functions
 paths:
   /clusters:
     post:
@@ -810,6 +812,128 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BaseError_500'
+  '/org/{id}/secrets':
+    get:
+      security:
+          - bearerAuth: []
+      tags:
+        - secrets
+      summary: List secrets
+      operationId: GetSecrets
+      description: Listing secrets
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Organization identification
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Secrets listed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SecretsListResponse'
+        '400':
+          description: Error during listing secrets
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseError_400'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+    post:
+      security:
+          - bearerAuth: []
+      tags:
+        - secrets
+      summary: Add secrets
+      operationId: AddSecrets
+      description: Adding secrets
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Organization identification
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSecretRequest'
+      responses:
+        '201':
+          description: Secret saved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateSecretResponse'
+        '400':
+          description: Error during adding secrets
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseError_400'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseError_500'
+  '/org/{id}/secrets/{secretId}':
+    delete:
+      security:
+          - bearerAuth: []
+      tags:
+        - secrets
+      summary: Delete secrets
+      operationId: DeleteSecrets
+      description: Deleting secrets
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Organization identification
+          schema:
+            type: integer
+        - name: secretId
+          in: path
+          required: true
+          description: Secret identification
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Secret deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateSecretResponse'
+        '400':
+          description: Error during deleting secrets
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseError_400'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
 
 components:
   securitySchemes:
@@ -1489,5 +1613,76 @@ components:
         token:
           type: string
           example: "jkjb342hb424j3b24"
+
+    SecretsListResponse:
+      type: object
+      properties:
+        secrets:
+          type: array
+          items:
+            $ref: '#components/schemas/SecretsListItem'
+
+    SecretsListItem:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "15205947761"
+        name:
+          type: string
+          example: "My google secret"
+        type:
+          type: string
+          example: "GOOGLE_SECRET"
+        values:
+          type: array
+          items:
+            $ref: '#components/schemas/SecretKey'
+
+    SecretKey:
+      type: object
+      properties:
+        key:
+          type: string
+          example: "PROJECT_ID"
+
+    CreateSecretResponse:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "My google secret"
+        type:
+          type: string
+          example: "GOOGLE_SECRET"
+        secret_id:
+          type: string
+          example: "15205947761"
+
+    CreateSecretRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "My google secret"
+        type:
+          type: string
+          example: "GOOGLE_SECRET"
+        values:
+          type: array
+          items:
+            $ref: '#/components/schemas/SecretKeyValue'
+
+    SecretKeyValue:
+      type: object
+      properties:
+        key:
+          type: string
+          example: "PROJECT_ID"
+        value:
+          type: string
+          example: "mygoogleprojectid"
+
+
 
 
