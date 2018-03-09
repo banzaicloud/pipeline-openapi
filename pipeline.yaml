@@ -23,6 +23,8 @@ tags:
     description: Auth related functions
   - name: secrets
     description: Secrets related functions
+  - name: organizations
+    description: Organizations related functions
 paths:
   /clusters:
     post:
@@ -941,6 +943,103 @@ paths:
               schema:
                 $ref: '#/components/schemas/SecretsNotFound'
 
+  '/orgs/{id}':
+    get:
+      security:
+          - bearerAuth: []
+      tags:
+        - organizations
+      summary: Get organization
+      operationId: GetOrg
+      description: Getting organization
+      responses:
+        '200':
+          description: "Organization getting successfully"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrganizationListItemResponse'
+        '400':
+          description: Error during getting organization
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseError_400'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '404':
+          description: Organization not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrganizationNotFound'
+
+  '/orgs':
+    get:
+      security:
+          - bearerAuth: []
+      tags:
+        - organizations
+      summary: List organizations
+      operationId: ListOrgs
+      description: Listing organizations
+      responses:
+        '200':
+          description: "Organizations listed successfully"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrganizationListResponse'
+        '400':
+          description: Error during listing organizations
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseError_400'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+    post:
+      security:
+          - bearerAuth: []
+      tags:
+        - organizations
+      summary: Create organization
+      operationId: CreateOrg
+      description: Creating organization
+      responses:
+        '200':
+          description: "Organizations created successfully"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrganizationCreateResponse'
+        '400':
+          description: Error during creating organization
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseError_400'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseError_500'
+
 components:
   securitySchemes:
     bearerAuth:
@@ -1702,6 +1801,89 @@ components:
           type: string
           example: "There are no secrets with [1] organization id and [15205947761] secret id"
 
+    OrganizationListResponse:
+      type: array
+      items:
+        $ref: '#/components/schemas/OrganizationListItemResponse'
+
+    OrganizationListItemResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        createdAt:
+          type: string
+          example: "2018-03-09T13:24:49+01:00"
+        updatedAt:
+          type: string
+          example: "2018-03-09T13:24:49+01:00"
+        name:
+          type: string
+          example: "myOrgName"
+
+    OrganizationCreateResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        createdAt:
+          type: string
+          example: "2018-03-09T13:24:49+01:00"
+        updatedAt:
+          type: string
+          example: "2018-03-09T13:24:49+01:00"
+        name:
+          type: string
+          example: "myOrgName"
+        users:
+          type: array
+          $ref: '#/components/schemas/User'
+
+    User:
+      type: object
+      properties:
+        ID:
+          type: integer
+          example: 1
+        CreatedAt:
+          type: string
+          example: "2018-03-09T13:24:49+01:00"
+        UpdatedAt:
+          type: string
+          example: "2018-03-09T13:24:49+01:00"
+        DeletedAt:
+          type: string
+          example: null
+        Name:
+          type: string
+          example: "myName"
+        Email:
+          type: string
+          example: "my@email.com"
+        Login:
+          type: string
+          example: "username"
+        Image:
+          type: string
+          example: "githubImageUrl.com/imageId/3"
+        Organizations:
+          type: object
+          example: null
+
+    OrganizationNotFound:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 404
+        message:
+          type: string
+          example: "Organization not found"
+        error:
+          type: string
+          example: "Organization not found"
 
 
 
