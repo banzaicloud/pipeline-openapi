@@ -25,6 +25,11 @@ tags:
     description: Secrets related functions
   - name: organizations
     description: Organizations related functions
+  - name: common
+    description: Common API functions
+  - name: users
+    description: Users related functions
+
 paths:
   '/orgs/{orgId}/clusters':
     post:
@@ -362,6 +367,87 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ClusterNotFound'
+
+  '/orgs/{orgId}/clusters/{id}/apiendpoint':
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - cluster
+      summary: Get API endpoint
+      operationId: GetAPIEndpoint
+      description: Get API endpoint
+      parameters:
+        - name: orgId
+          in: path
+          required: true
+          description: Organization identification
+          schema:
+            type: integer
+        - name: id
+          in: path
+          required: true
+          description: Selected cluster identification (number)
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: "API endpoint showed"
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "35.195.56.31"
+        '400':
+          description: "Error during getting API endpoint"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseError_400'
+        '401':
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '404':
+          description: "Cluster not found"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClusterNotFound'
+
+  '/orgs/{orgId}/clusters/{id}/monitoring':
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - cluster
+      summary: Update monitoring
+      operationId: UpdateMonitoring
+      description: Update monitoring
+      parameters:
+        - name: orgId
+          in: path
+          required: true
+          description: Organization identification
+          schema:
+            type: integer
+        - name: id
+          in: path
+          required: true
+          description: Selected cluster identification (number)
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: "Monitoring updated"
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "OK"
+
   '/orgs/{orgId}/clusters/{id}/endpoints':
     get:
       security:
@@ -1013,6 +1099,121 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BaseError_500'
+
+  '/orgs/{orgId}/secrets/{type}':
+    get:
+      security:
+          - bearerAuth: []
+      tags:
+        - secrets
+      summary: List secrets with filter
+      operationId: GetSecretsWithFilter
+      description: Listing secrets with filter
+      parameters:
+        - name: orgId
+          in: path
+          required: true
+          description: Organization identification
+          schema:
+            type: integer
+        - name: type
+          in: path
+          required: true
+          description: Secret type
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Secrets listed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SecretsListResponse'
+        '400':
+          description: Error during listing secrets
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseError_400'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+
+  '/orgs/{orgId}/allowed/secrets':
+    get:
+      security:
+          - bearerAuth: []
+      tags:
+        - secrets
+      summary: List allowed secret types
+      operationId: AllowedSecretsTypes
+      description: List allowed secret types and their required keys
+      parameters:
+        - name: orgId
+          in: path
+          required: true
+          description: Organization identification
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Allowed types listed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AllowedSecretTypesResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+
+  '/orgs/{orgId}/allowed/secrets/{type}':
+    get:
+      security:
+          - bearerAuth: []
+      tags:
+        - secrets
+      summary: List required keys
+      operationId: AllowedSecretsTypesKeys
+      description: List required keys in the given secret type
+      parameters:
+        - name: orgId
+          in: path
+          required: true
+          description: Organization identification
+          schema:
+            type: integer
+        - name: type
+          in: path
+          required: true
+          description:  Secret type
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Required keys listed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RequiredKeysResponse'
+        '400':
+          description: Error during listing secret types
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseError_400'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+
   '/orgs/{orgId}/secrets/{secretId}':
     delete:
       security:
@@ -1036,12 +1237,8 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        '204':
           description: Secret deleted successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CreateSecretResponse'
         '400':
           description: Error during deleting secrets
           content:
@@ -1061,7 +1258,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/SecretsNotFound'
 
-  '/orgs/{id}':
+  '/orgs/{orgId}':
     get:
       security:
           - bearerAuth: []
@@ -1070,6 +1267,13 @@ paths:
       summary: Get organization
       operationId: GetOrg
       description: Getting organization
+      parameters:
+        - name: orgId
+          in: path
+          required: true
+          description: Organization identification
+          schema:
+            type: integer
       responses:
         '200':
           description: "Organization getting successfully"
@@ -1132,6 +1336,16 @@ paths:
       summary: Create organization
       operationId: CreateOrg
       description: Creating organization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "myOrgName"
       responses:
         '200':
           description: "Organizations created successfully"
@@ -1158,6 +1372,79 @@ paths:
               schema:
                 $ref: '#/components/schemas/BaseError_500'
 
+  '/api':
+    get:
+      tags:
+        - common
+      summary: List Pipeline API endpoints
+      operationId: ListEndpoints
+      description: Listing Pipeline API endpoint
+      responses:
+        '200':
+          description: "Endpoints listed"
+          content:
+            application/json:
+              schema:
+                type: array
+                example: [
+                  "/api/v1/orgs",
+                  "/api/v1/orgs/:orgid",
+                  ]
+
+  '/api/v1/orgs/{orgId}/users':
+    get:
+      security:
+          - bearerAuth: []
+      tags:
+        - users
+      summary: List users
+      operationId: ListUsers
+      description: Listing users
+      parameters:
+        - name: orgId
+          in: path
+          required: true
+          description: Organization identification
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: "Users listed"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListUserResponse'
+
+  '/api/v1/orgs/{orgId}/users/{userId}':
+    get:
+      security:
+          - bearerAuth: []
+      tags:
+        - users
+      summary: Get user
+      operationId: GetUsers
+      description: Getting user
+      parameters:
+        - name: orgId
+          in: path
+          required: true
+          description: Organization identification
+          schema:
+            type: integer
+        - name: userId
+          in: path
+          required: true
+          description: User identification
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: "Getting user succeeded"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
 components:
   securitySchemes:
     bearerAuth:
@@ -1174,6 +1461,7 @@ components:
         - location
         - nodeInstanceType
         - cloud
+        - secret_id
         - properties
       properties:
         name:
@@ -1188,6 +1476,9 @@ components:
         cloud:
           type: string
           example: "google"
+        secret_id:
+          type: string
+          example: "62bc3c75-91fb-4670-bad4-24b401a9deac"
         properties:
           type: object
           oneOf:
@@ -1850,24 +2141,13 @@ components:
       properties:
         id:
           type: string
-          example: "15205947761"
+          example: "62bc3c75-91fb-4670-bad4-24b401a9deac"
         name:
           type: string
           example: "My google secret"
         type:
           type: string
           example: "GOOGLE_SECRET"
-        values:
-          type: array
-          items:
-            $ref: '#components/schemas/SecretKey'
-
-    SecretKey:
-      type: object
-      properties:
-        key:
-          type: string
-          example: "PROJECT_ID"
 
     CreateSecretResponse:
       type: object
@@ -1880,7 +2160,7 @@ components:
           example: "GOOGLE_SECRET"
         secret_id:
           type: string
-          example: "15205947761"
+          example: "62bc3c75-91fb-4670-bad4-24b401a9deac"
 
     CreateSecretRequest:
       type: object
@@ -1899,10 +2179,7 @@ components:
     SecretKeyValue:
       type: object
       properties:
-        key:
-          type: string
-          example: "PROJECT_ID"
-        value:
+        project_id:
           type: string
           example: "mygoogleprojectid"
 
@@ -1962,31 +2239,28 @@ components:
     User:
       type: object
       properties:
-        ID:
+        id:
           type: integer
           example: 1
-        CreatedAt:
+        createdAt:
           type: string
           example: "2018-03-09T13:24:49+01:00"
-        UpdatedAt:
+        updatedAt:
           type: string
           example: "2018-03-09T13:24:49+01:00"
-        DeletedAt:
-          type: string
-          example: null
-        Name:
+        name:
           type: string
           example: "myName"
-        Email:
+        email:
           type: string
           example: "my@email.com"
-        Login:
+        login:
           type: string
           example: "username"
-        Image:
+        image:
           type: string
           example: "githubImageUrl.com/imageId/3"
-        Organizations:
+        organizations:
           type: object
           example: null
 
@@ -2002,5 +2276,67 @@ components:
         error:
           type: string
           example: "Organization not found"
+
+    AllowedSecretTypesResponse:
+      type: object
+      properties:
+        alllowed:
+          type: object
+          properties:
+            AMAZON_SECRET:
+              type: array
+              items:
+                type: string
+              example: [ "AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY"]
+            AZURE_SECRET:
+              type: array
+              items:
+                type: string
+              example: [ "AZURE_CLIENT_ID",  "AZURE_CLIENT_SECRET", "AZURE_TENANT_ID", "AZURE_SUBSCRIPTION_ID" ]
+            GOOGLE_SECRET:
+              type: array
+              items:
+                type: string
+              example: [
+                          "type",
+                          "project_id",
+                          "private_key_id",
+                          "private_key",
+                          "client_email",
+                          "client_id",
+                          "auth_uri",
+                          "token_uri",
+                          "auth_provider_x509_cert_url",
+                          "client_x509_cert_url"
+                        ]
+
+    RequiredKeysResponse:
+      type: object
+      properties:
+        keys:
+          type: array
+          items:
+            type: string
+            example: [
+                      "type",
+                      "project_id",
+                      "private_key_id",
+                      "private_key",
+                      "client_email",
+                      "client_id",
+                      "auth_uri",
+                      "token_uri",
+                      "auth_provider_x509_cert_url",
+                      "client_x509_cert_url"
+                    ]
+
+    ListUserResponse:
+      type: array
+      items:
+        $ref: '#/components/schemas/User'
+
+
+
+
 
 
