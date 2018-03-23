@@ -31,7 +31,7 @@ tags:
     description: Users related functions
 
 paths:
-  '/orgs/{orgId}/clusters':
+  '/api/v1/orgs/{orgId}/clusters':
     post:
       security:
         - bearerAuth: []
@@ -138,7 +138,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Unauthorized'
-  '/orgs/{orgId}/clusters/{id}':
+  '/api/v1/orgs/{orgId}/clusters/{id}':
     get:
       security:
         - bearerAuth: []
@@ -319,7 +319,7 @@ paths:
         '404':
           description: Cluster not found
 
-  '/orgs/{orgId}/clusters/{id}/config':
+  '/api/v1/orgs/{orgId}/clusters/{id}/config':
     get:
       security:
         - bearerAuth: []
@@ -368,7 +368,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ClusterNotFound'
 
-  '/orgs/{orgId}/clusters/{id}/apiendpoint':
+  '/api/v1/orgs/{orgId}/clusters/{id}/apiendpoint':
     get:
       security:
         - bearerAuth: []
@@ -417,7 +417,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ClusterNotFound'
 
-  '/orgs/{orgId}/clusters/{id}/monitoring':
+  '/api/v1/orgs/{orgId}/clusters/{id}/monitoring':
     post:
       security:
         - bearerAuth: []
@@ -448,7 +448,7 @@ paths:
                 type: string
                 example: "OK"
 
-  '/orgs/{orgId}/clusters/{id}/endpoints':
+  '/api/v1/orgs/{orgId}/clusters/{id}/endpoints':
     get:
       security:
         - bearerAuth: []
@@ -502,7 +502,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/BaseError_500'
 
-  '/orgs/{orgId}/clusters/{id}/helminit':
+  '/api/v1/orgs/{orgId}/clusters/{id}/helminit':
     post:
       security:
         - bearerAuth: []
@@ -556,7 +556,7 @@ paths:
             schema:
               $ref: '#/components/schemas/HelmInitRequest'
 
-  '/orgs/{orgId}/clusters/{id}/deployments':
+  '/api/v1/orgs/{orgId}/clusters/{id}/deployments':
     get:
       security:
         - bearerAuth: []
@@ -686,7 +686,7 @@ paths:
         '404':
           description: "Cluster not found"
 
-  '/orgs/{orgId}/clusters/{id}/deployments/{name}':
+  '/api/v1/orgs/{orgId}/clusters/{id}/deployments/{name}':
       delete:
         security:
           - bearerAuth: []
@@ -805,7 +805,7 @@ paths:
           '404':
             description: "Cluster not found"
 
-  '/orgs/{orgId}/profiles/cluster/{type}':
+  '/api/v1/orgs/{orgId}/profiles/cluster/{type}':
     get:
       security:
           - bearerAuth: []
@@ -847,7 +847,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Unauthorized'
 
-  '/orgs/{orgId}/profiles/cluster':
+  '/api/v1/orgs/{orgId}/profiles/cluster':
     post:
       security:
           - bearerAuth: []
@@ -934,7 +934,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/BaseError_500'
 
-  '/orgs/{orgId}/profiles/cluster/{type}/{name}':
+  '/api/v1/orgs/{orgId}/profiles/cluster/{type}/{name}':
     delete:
       security:
           - bearerAuth: []
@@ -1018,7 +1018,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BaseError_500'
-  '/orgs/{orgId}/secrets':
+  '/api/v1/orgs/{orgId}/secrets':
     get:
       security:
           - bearerAuth: []
@@ -1100,7 +1100,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/BaseError_500'
 
-  '/orgs/{orgId}/secrets/{type}':
+  '/api/v1/orgs/{orgId}/secrets/{type}':
     get:
       security:
           - bearerAuth: []
@@ -1142,7 +1142,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Unauthorized'
 
-  '/orgs/{orgId}/allowed/secrets':
+  '/api/v1/orgs/{orgId}/allowed/secrets':
     get:
       security:
           - bearerAuth: []
@@ -1172,7 +1172,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Unauthorized'
 
-  '/orgs/{orgId}/allowed/secrets/{type}':
+  '/api/v1/orgs/{orgId}/allowed/secrets/{type}':
     get:
       security:
           - bearerAuth: []
@@ -1214,7 +1214,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Unauthorized'
 
-  '/orgs/{orgId}/secrets/{secretId}':
+  '/api/v1/orgs/{orgId}/secrets/{secretId}':
     delete:
       security:
           - bearerAuth: []
@@ -1258,7 +1258,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/SecretsNotFound'
 
-  '/orgs/{orgId}':
+  '/api/v1/orgs/{orgId}':
     get:
       security:
           - bearerAuth: []
@@ -1300,7 +1300,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/OrganizationNotFound'
 
-  '/orgs':
+  '/api/v1/orgs':
     get:
       security:
           - bearerAuth: []
