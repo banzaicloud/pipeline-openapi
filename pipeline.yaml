@@ -83,7 +83,7 @@ paths:
                   properties:
                     properties:
                       amazon:
-                        $ref: '#components/schemas/CreateAmazonProperties'
+                        $ref: '#/components/schemas/CreateAmazonProperties'
 
               AKS:
                 value:
@@ -93,7 +93,7 @@ paths:
                   nodeInstanceType: "Standard_D2_v2"
                   properties:
                     azure:
-                      $ref: '#components/schemas/CreateAzureProperties'
+                      $ref: '#/components/schemas/CreateAzureProperties'
 
               GKE:
                 value:
@@ -103,7 +103,7 @@ paths:
                   nodeInstanceType: "n1-standard-1"
                   properties:
                     google:
-                      $ref: '#components/schemas/CreateGoogleProperties'
+                      $ref: '#/components/schemas/CreateGoogleProperties'
     get:
       security:
         - bearerAuth: []
@@ -556,6 +556,280 @@ paths:
             schema:
               $ref: '#/components/schemas/HelmInitRequest'
 
+  '/api/v1/orgs/{orgId}/clusters/{id}/helm/repos':
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+       - helm
+      summary: List repositories
+      operationId: HelmInit
+      description: Listing helm repositories in the cluster
+      parameters:
+        - name: orgId
+          in: path
+          required: true
+          description: Organization identification
+          schema:
+            type: integer
+        - name: id
+          in: path
+          required: true
+          description: Selected cluster identification (number)
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: "Repositories listed"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HelmReposListResponse'
+        '400':
+          description: "Error during getting endpoints"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseError_400'
+        '401':
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '404':
+          description: "Cluster not found"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClusterNotFound'
+
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+       - helm
+      summary: Add Repo
+      operationId: HelmReposAdd
+      description: Add new helm repository
+      parameters:
+        - name: orgId
+          in: path
+          required: true
+          description: Organization identification
+          schema:
+            type: integer
+        - name: id
+          in: path
+          required: true
+          description: Selected cluster identification (number)
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: "resource successfully added."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HelmReposAddResponse'
+        '400':
+          description: "Error adding helm repo"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseError_400'
+        '401':
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '404':
+          description: "Cluster not found"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClusterNotFound'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HelmReposAddRequest'
+
+  '/api/v1/orgs/{orgId}/clusters/{id}/helm/repos/{repoName}':
+    delete:
+      security:
+        - bearerAuth: []
+      tags:
+       - helm
+      summary: Delete Repo
+      operationId: HelmReposDelete
+      description: Delete  helm repository
+      parameters:
+        - name: orgId
+          in: path
+          required: true
+          description: Organization identification
+          schema:
+            type: integer
+        - name: id
+          in: path
+          required: true
+          description: Selected cluster identification (number)
+          schema:
+            type: integer
+        - name: repoName
+          in: path
+          required: true
+          description: Helm repo name
+          schema:
+            type: string
+      responses:
+        '200':
+          description: "resource deleted successfully"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HelmReposDeleteResponse'
+        '400':
+          description: "error deleting helm repos"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseError_400'
+        '401':
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '404':
+          description: "Cluster not found"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClusterNotFound'
+
+
+  '/api/v1/orgs/{orgId}/clusters/{id}/helm/repos/{repoName}/update':
+    put:
+      security:
+        - bearerAuth: []
+      tags:
+       - helm
+      summary: Update Repo
+      operationId: HelmReposUpdate
+      description: Modify helm repository
+      parameters:
+        - name: orgId
+          in: path
+          required: true
+          description: Organization identification
+          schema:
+            type: integer
+        - name: id
+          in: path
+          required: true
+          description: Selected cluster identification (number)
+          schema:
+            type: integer
+        - name: repoName
+          in: path
+          required: true
+          description: Helm repo name
+          schema:
+            type: string
+      responses:
+        '200':
+          description: "resource modified successfully"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HelmReposUpdateResponse'
+        '400':
+          description: "repo modification failed"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseError_400'
+        '401':
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '404':
+          description: "Resource found"
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/ClusterNotFound'
+                  - $ref: '#/components/schemas/RepoNotFound'
+
+  '/api/v1/orgs/{orgId}/clusters/{id}/helm/charts/?':
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+       - helm
+      summary: Chart List
+      operationId: HelmChartList
+      description: Get available helm chart's list
+      parameters:
+        - name: orgId
+          in: path
+          required: true
+          description: Organization identification
+          schema:
+            type: integer
+        - name: id
+          in: path
+          required: true
+          description: Selected cluster identification (number)
+          schema:
+            type: integer
+        - name: name
+          in: query
+          required: false
+          description: Chart Name
+          schema:
+            type: string
+        - name: repo
+          in: query
+          required: false
+          description: Repo Name
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HelmChartsListResponse'
+        '400':
+          description: "error parsing request"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseError_400'
+        '401':
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '404':
+          description: "Resource found"
+          content:
+            application/json:
+              schema:
+                  $ref: '#/components/schemas/ClusterNotFound'
+
+
+
   '/api/v1/orgs/{orgId}/clusters/{id}/deployments':
     get:
       security:
@@ -833,7 +1107,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#components/schemas/ProfileListResponse'
+                $ref: '#/components/schemas/ProfileListResponse'
         '400':
             description: "Error during delete deployment"
             content:
@@ -1482,9 +1756,9 @@ components:
         properties:
           type: object
           oneOf:
-            - $ref: '#components/schemas/CreateAmazonProperties'
-            - $ref: '#components/schemas/CreateAzureProperties'
-            - $ref: '#components/schemas/CreateGoogleProperties'
+            - $ref: '#/components/schemas/CreateAmazonProperties'
+            - $ref: '#/components/schemas/CreateAzureProperties'
+            - $ref: '#/components/schemas/CreateGoogleProperties'
           example:
             google:
               project:
@@ -1628,7 +1902,7 @@ components:
     ClusterListResponse:
       type: array
       items:
-        $ref: '#components/schemas/CreateClusterResponse_200'
+        $ref: '#/components/schemas/CreateClusterResponse_200'
 
     BaseError_400:
       type: object
@@ -1668,6 +1942,20 @@ components:
         error:
           type: string
           example: "record not found"
+
+    RepoNotFound:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 404
+        message:
+          type: string
+          example: "repo not found"
+        error:
+          type: string
+          example: "repo not found"
+
 
     ClusterProfileNotFound:
       type: object
@@ -1788,7 +2076,7 @@ components:
         endpoints:
           type: array
           items:
-            $ref: '#components/schemas/EndpointItem'
+            $ref: '#/components/schemas/EndpointItem'
 
     EndpointItem:
       type: object
@@ -1802,7 +2090,7 @@ components:
         urls:
           type: array
           items:
-            $ref: '#components/schemas/URLItem'
+            $ref: '#/components/schemas/URLItem'
           example:
 
     URLItem:
@@ -1911,6 +2199,125 @@ components:
         service_account: "tiller"
         tiller_image: "gcr.io/kubernetes-helm/tiller:v2.7.2"
 
+    HelmReposListResponse:
+      type: array
+      items:
+        type: object
+        properties:
+          name:
+            type: string
+            example: "stable"
+          cache:
+            type: string
+            example: "statestore/<cluster_name>/helm/repository/cache/stable-index.yaml"
+          url:
+            type: string
+            example: "https://kubernetes-charts.storage.googleapis.com"
+          certFile:
+            type: string
+            example: ""
+          keyFile:
+            type: string
+            example: ""
+          caFile:
+            type: string
+            example: ""
+
+    HelmReposAddResponse:
+      type: object
+      properties:
+        status:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: "resource successfully added."
+        name:
+          type: string
+          example: "stable"
+          
+    HelmReposAddRequest:
+      type: object
+      required:
+        - name
+        - url
+      properties:
+        name:
+          type: string
+        url:
+          type: string
+        certFile:
+          type: string
+        keyFile:
+          type: string
+        caFile:
+          type: string
+      example:
+          name: "stable"
+          url: "https://kubernetes-charts.storage.googleapis.com"
+
+    HelmReposDeleteResponse:
+      type: object
+      properties:
+        status:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: "resource deleted successfully"
+        name:
+          type: string
+          example: "stable"
+
+    HelmReposUpdateResponse:
+      type: object
+      properties:
+        status:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: "resource modified successfully"
+        name:
+          type: string
+          example: "stable"
+
+    HelmChartsListResponse:
+      type: array
+      items:
+        type: object
+        properties:
+          name:
+            type: string
+            example: "pipeline-cluster-monitor"
+          home:
+            type: string
+            example: "https://banzaicloud.com"
+          sources:
+            type: array
+            example: ["https://github.com/banzaicloud/charts/"]
+          version:
+            type: string
+            example: "0.0.2"
+          description:
+            type: string
+            example: "A Helm chart for Kubernetes"
+          keywords:
+            type: array
+            example: ["pipeline, cluster, prometheus, monitor"]
+          apiVersion:
+            type: string
+            example: "v1"
+          urls:
+            type: array
+            example: ["pipeline-cluster-monitor-0.0.2.tgz"]
+          created:
+            type: string
+            example: "2018-04-02T18:57:15.650255071Z"
+          digest:
+            type: string
+            example: "5c3391d0752b7657da42a6e09454dc2d68e73bd0522a6739cc54c0b783b0b1bd"
+
     ProfileListResponse:
       type: object
       properties:
@@ -1929,9 +2336,9 @@ components:
         properties:
           type: object
           oneOf:
-            - $ref: '#components/schemas/ClusterProfileAmazon'
-            - $ref: '#components/schemas/ClusterProfileAzure'
-            - $ref: '#components/schemas/ClusterProfileGoogle'
+            - $ref: '#/components/schemas/ClusterProfileAmazon'
+            - $ref: '#/components/schemas/ClusterProfileAzure'
+            - $ref: '#/components/schemas/ClusterProfileGoogle'
           example:
             google:
               master:
@@ -2031,9 +2438,9 @@ components:
         properties:
           type: object
           oneOf:
-            - $ref: '#components/schemas/AddClusterProfileAmazon'
-            - $ref: '#components/schemas/AddClusterProfileAzure'
-            - $ref: '#components/schemas/AddClusterProfileGoogle'
+            - $ref: '#/components/schemas/AddClusterProfileAmazon'
+            - $ref: '#/components/schemas/AddClusterProfileAzure'
+            - $ref: '#/components/schemas/AddClusterProfileGoogle'
           example:
             google:
               master:
@@ -2134,7 +2541,7 @@ components:
         secrets:
           type: array
           items:
-            $ref: '#components/schemas/SecretsListItem'
+            $ref: '#/components/schemas/SecretsListItem'
 
     SecretsListItem:
       type: object
@@ -2334,9 +2741,3 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/User'
-
-
-
-
-
-
