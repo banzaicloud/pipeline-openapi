@@ -508,7 +508,7 @@ paths:
         - bearerAuth: []
       tags:
        - cluster
-      summary: Initialize helm
+      summary: Initialize Helm
       operationId: HelmInit
       description: Initialize helm in the cluster
       parameters:
@@ -564,7 +564,7 @@ paths:
        - helm
       summary: List repositories
       operationId: HelmInit
-      description: Listing helm repositories in the cluster
+      description: Listing Helm repositories in the cluster
       parameters:
         - name: orgId
           in: path
@@ -611,7 +611,7 @@ paths:
        - helm
       summary: Add Repo
       operationId: HelmReposAdd
-      description: Add new helm repository
+      description: Add new Helm repository
       parameters:
         - name: orgId
           in: path
@@ -633,7 +633,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/HelmReposAddResponse'
         '400':
-          description: "Error adding helm repo"
+          description: "Error adding Helm repo"
           content:
             application/json:
               schema:
@@ -665,7 +665,7 @@ paths:
        - helm
       summary: Delete Repo
       operationId: HelmReposDelete
-      description: Delete  helm repository
+      description: Delete  Helm repository
       parameters:
         - name: orgId
           in: path
@@ -693,7 +693,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/HelmReposDeleteResponse'
         '400':
-          description: "error deleting helm repos"
+          description: "error deleting Helm repos"
           content:
             application/json:
               schema:
@@ -720,7 +720,7 @@ paths:
        - helm
       summary: Update Repo
       operationId: HelmReposUpdate
-      description: Modify helm repository
+      description: Modify Helm repository
       parameters:
         - name: orgId
           in: path
@@ -776,7 +776,7 @@ paths:
        - helm
       summary: Chart List
       operationId: HelmChartList
-      description: Get available helm chart's list
+      description: Get available Helm chart's list
       parameters:
         - name: orgId
           in: path
@@ -1049,7 +1049,7 @@ paths:
          - deployment
         summary: Check deployment status
         operationId: HelmDeploymentStatus
-        description: Checking the status of a deployment through the helm client API
+        description: Checking the status of a deployment through the Helm client API
         parameters:
           - name: orgId
             in: path
