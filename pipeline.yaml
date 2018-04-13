@@ -1952,9 +1952,11 @@ components:
               project:
                 master:
                   version: "1.8.7-gke.1"
-                node:
-                  count: 1
-                  version: "1.8.7-gke.1"
+                nodePools:
+                  pool1:
+                    count: 1
+                    nodeInstanceType: "n1-standard-2"
+                nodeVersion: "1.8.7-gke.1"
 
     CreateAmazonProperties:
       type: object
@@ -2000,25 +2002,27 @@ components:
         azure:
           type: object
           required:
-            - node
+            - kubernetesVersion
+            - resourceGroup
           properties:
-            node:
+            resourceGroup:
+              type: string
+              example: "myRg"
+            kubernetesVersion:
+              type: string
+              example: "1.8.2"
+            nodePools:
               type: object
-              required:
-                - resourceGroup
               properties:
-                resourceGroup:
-                  type: string
-                  example: "myRg"
-                agentCount:
-                  type: integer
-                  example: 1
-                agentName:
-                  type: string
-                  example: "agentpool1"
-                kubernetesVersion:
-                  type: string
-                  example: "1.8.2"
+                agentpool1:
+                  type: object
+                  properties:
+                    count:
+                      type: number
+                      example: 1
+                    nodeInstanceType:
+                      type: string
+                      example: "Standard_B2ms"
 
     CreateGoogleProperties:
       type: object
@@ -2039,18 +2043,21 @@ components:
                 version:
                   type: string
                   example: "1.8.7-gke.1"
-            node:
+            nodeVersion:
+              type: string
+              example: "1.8.7-gke.1"
+            nodePools:
               type: object
               properties:
-                count:
-                  type: string
-                  example: 1
-                version:
-                  type: string
-                  example: "1.8.7-gke.1"
-                serviceAccount:
-                  type: string
-                  example: "serviceAccountExample"
+                agentpool1:
+                  type: object
+                  properties:
+                    count:
+                      type: number
+                      example: 1
+                    nodeInstanceType:
+                      type: string
+                      example: "n1-standard-2"
 
     CreateClusterResponse_200:
       type: object
@@ -2175,8 +2182,12 @@ components:
             - $ref: '#/components/schemas/UpdateGoogleProperties'
           example:
             google:
-              node:
-                count: 1
+              master:
+                version: "1.9.4-gke.1"
+              nodePools:
+                pool1:
+                  count: 2
+                  nodeInstanceType: "n1-standard-2"
 
     UpdateAmazonProperties:
       type: object
@@ -2204,12 +2215,15 @@ components:
         azure:
           type: object
           properties:
-            node:
+            nodePools:
               type: object
               properties:
-                agentCount:
-                  type: integer
-                  example: 2
+                pool1:
+                  type: object
+                  properties:
+                    count: 
+                      type: number
+                      example: 2
 
     UpdateGoogleProperties:
       type: object
@@ -2219,15 +2233,18 @@ components:
           properties:
             version:
               type: string
-        node:
+        nodePools:
           type: object
           properties:
-            count:
-              type: string
-            version:
-              type: string
-            serviceAccount:
-              type: string
+            pool1:
+              type: object
+              properties:
+                count:
+                  type: number
+                  example: 1
+                nodeInstanceType:
+                  type: string
+                  example: "n1-standard-2"
 
     ClusterDelete_200:
       type: object
@@ -2573,7 +2590,7 @@ components:
             node:
               type: object
               properties:
-                agentCount:
+                count:
                   type: integer
                   example: 1
                 agentName:
@@ -2680,7 +2697,7 @@ components:
                 resourceGroup:
                   type: string
                   example: "myRg"
-                agentCount:
+                count:
                   type: integer
                   example: 1
                 agentName:
@@ -3105,7 +3122,6 @@ components:
             validNodeVersions:
               type: array
               example: ["1.9.6-gke.0", "1.9.4-gke.1"]
-
 
 
 
