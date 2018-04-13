@@ -50,12 +50,12 @@ paths:
           schema:
             type: integer
       responses:
-        '200':
+        '202':
           description: Cluster created successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CreateClusterResponse_200'
+                $ref: '#/components/schemas/CreateClusterResponse_202'
         '400':
           description: Cluster creation failed
           content:
@@ -146,8 +146,8 @@ paths:
         - bearerAuth: []
       tags:
         - cluster
-      summary: Get cluster
-      description: Getting cluster details
+      summary: Get cluster status
+      description: Getting cluster status
       operationId: GetCluster
       parameters:
         - name: orgId
@@ -168,7 +168,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CreateClusterResponse_200'
+                $ref: '#/components/schemas/GetClusterStatusResponse'
         '400':
           description: Error during getting cluster details
           content:
@@ -1721,7 +1721,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/User'
 
-  '/api/v1/orgs/{{orgId}}/cloudinfo':
+  '/api/v1/orgs/{orgId}/cloudinfo':
     get:
       security:
           - bearerAuth: []
@@ -1751,7 +1751,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Unauthorized'
 
-  '/api/v1/orgs/{{orgId}}/cloudinfo/filters':
+  '/api/v1/orgs/{orgId}/cloudinfo/filters':
     get:
       security:
           - bearerAuth: []
@@ -1781,7 +1781,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Unauthorized'
 
-  '/api/v1/orgs/{{orgId}}/cloudinfo/amazon':
+  '/api/v1/orgs/{orgId}/cloudinfo/amazon':
     post:
       security:
           - bearerAuth: []
@@ -1823,7 +1823,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Unauthorized'
 
-  '/api/v1/orgs/{{orgId}}/cloudinfo/azure':
+  '/api/v1/orgs/{orgId}/cloudinfo/azure':
     post:
       security:
           - bearerAuth: []
@@ -1865,7 +1865,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Unauthorized'
 
-  '/api/v1/orgs/{{orgId}}/cloudinfo/google':
+  '/api/v1/orgs/{orgId}/cloudinfo/google':
     post:
       security:
           - bearerAuth: []
@@ -2059,24 +2059,12 @@ components:
                       type: string
                       example: "n1-standard-2"
 
-    CreateClusterResponse_200:
+    CreateClusterResponse_202:
       type: object
       properties:
-        status:
-          type: integer
-          example: 200
         name:
           type: string
           example: "gkecluster-pipelineuser-123"
-        location:
-          type: string
-          example: "us-central1-a"
-        cloud:
-          type: string
-          example: "google"
-        nodeInstanceType:
-          type: string
-          example: "n1-standard-1"
         id:
           type: integer
           example: 1
@@ -2097,7 +2085,7 @@ components:
     ClusterListResponse:
       type: array
       items:
-        $ref: '#/components/schemas/CreateClusterResponse_200'
+        $ref: '#/components/schemas/GetClusterStatusResponse'
 
     BaseError_400:
       type: object
@@ -2255,9 +2243,6 @@ components:
         name:
           type: string
           example: "gkecluster-pipelineuser-123"
-        message:
-          type: string
-          example: "Cluster deleted successfully"
         id:
           type: integer
           example: 1
@@ -3122,7 +3107,43 @@ components:
             validNodeVersions:
               type: array
               example: ["1.9.6-gke.0", "1.9.4-gke.1"]
+    
+    GetClusterStatusResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: "RUNNING"
+        name: 
+          type: string
+          example: "myClusterName"
+        cloud:
+          type: string
+          example: "google"
+        location:
+          type: string
+          example: "us-central1-a"
+        nodeInstanceType:
+          type: string
+          example: "n1-standard-1"
+        id:
+          type: number
+          example: 1
+        nodePools:
+          type: object
+          properties:
+            pool1:
+              type: object
+              properties:
+                count:
+                  type: number
+                  example: 1
+                nodeInstanceType:
+                  type: string
+                  example: "n1-standard-1"
 
+      
+      
 
 
 
