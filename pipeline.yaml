@@ -2701,7 +2701,7 @@ components:
     ProfileListResponse:
       type: object
       properties:
-        instanceName:
+        name:
           type: string
           example: "default"
         location:
@@ -2723,10 +2723,9 @@ components:
             google:
               master:
                 version: "1.8.7-gke.1"
-              node:
-                count: 1
-                version: "1.8.7-gke.1"
-                serviceAccount: ""
+              
+              nodeVersion: "1.8.7-gke.1"
+              serviceAccount: ""
 
     ClusterProfileAmazon:
       type: object
@@ -2787,23 +2786,17 @@ components:
                 version:
                   type: string
                   example: 1.8.7-gke.1
-            node:
-              type: object
-              properties:
-                count:
-                  type: integer
-                  example: 1
-                version:
-                  type: string
-                  example: 1.8.7-gke.1
-                serviceAccount:
-                  type: string
-                  example: "serviceAccountExample"
+            nodeVersion:
+              type: string
+              example: 1.8.7-gke.1
+            serviceAccount:
+              type: string
+              example: "serviceAccountExample"
 
     AddClusterProfileRequest:
       type: object
       properties:
-        instanceName:
+        name:
           type: string
           example: "myCluster-profile"
         location:
