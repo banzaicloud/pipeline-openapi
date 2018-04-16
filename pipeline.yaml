@@ -2927,7 +2927,7 @@ components:
           example: "My google secret"
         type:
           type: string
-          example: "GOOGLE_SECRET"
+          example: "google"
 
     CreateSecretResponse:
       type: object
@@ -2937,7 +2937,7 @@ components:
           example: "My google secret"
         type:
           type: string
-          example: "GOOGLE_SECRET"
+          example: "google"
         secret_id:
           type: string
           example: "62bc3c75-91fb-4670-bad4-24b401a9deac"
@@ -2950,7 +2950,7 @@ components:
           example: "My google secret"
         type:
           type: string
-          example: "GOOGLE_SECRET"
+          example: "google"
         values:
           type: array
           items:
@@ -3063,17 +3063,17 @@ components:
         alllowed:
           type: object
           properties:
-            AMAZON_SECRET:
+            amazon:
               type: array
               items:
                 type: string
               example: [ "AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY"]
-            AZURE_SECRET:
+            azure:
               type: array
               items:
                 type: string
               example: [ "AZURE_CLIENT_ID",  "AZURE_CLIENT_SECRET", "AZURE_TENANT_ID", "AZURE_SUBSCRIPTION_ID" ]
-            GOOGLE_SECRET:
+            google:
               type: array
               items:
                 type: string
@@ -3088,6 +3088,13 @@ components:
                           "token_uri",
                           "auth_provider_x509_cert_url",
                           "client_x509_cert_url"
+                        ]
+            kubernetes:
+              type: array
+              items:
+                type: string
+              example: [
+                        "K8Sconfig"
                         ]
 
     RequiredKeysResponse:
@@ -3141,7 +3148,8 @@ components:
           example: [
                   "location",
                   "instanceType",
-                  "k8sVersion"
+                  "k8sVersion",
+                  "image"
                   ]
 
     AmazonConfigRequest:
@@ -3152,14 +3160,14 @@ components:
           properties:
             fields:
               type: array
-              example: [ "location", "instanceType" ]
+              example: [ "location", "instanceType", "image" ]
         instanceType:
           type: object
           properties:
             tags:
               type: array
               example: [ "0.3.0" ]
-            zone:
+            location:
               type: string
               example: "eu-west-1"
 
@@ -3178,13 +3186,13 @@ components:
         instanceType:
           type: object
           properties:
-            zone:
+            location:
               type: string
               example: "eastus"
         k8sVersion:
           type: object
           properties:
-            zone:
+            location:
               type: string
               example: "eastus"
 
@@ -3203,13 +3211,13 @@ components:
         instanceType:
           type: object
           properties:
-            zone:
+            location:
               type: string
               example: "asia-east1-a"
         k8sVersion:
           type: object
           properties:
-            zone:
+            location:
               type: string
               example: "us-central1-a"
 
@@ -3225,12 +3233,18 @@ components:
         locations:
           type: string
           example: [ "ap-south-1", "us-east-2" ]
-        nodeInstanceType:
+        image:
           type: object
           properties:
             eu-west-1:
               type: array
               example: [ "ami-6202561b", "ami-ece5b095" ]
+        nodeInstanceType:
+          type: object
+          properties:
+            eu-west-1:
+              type: array
+              example: [ "t2.nano", "t2.micro" ]      
 
     AzureConfigResponse:
       type: object
