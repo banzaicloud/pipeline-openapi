@@ -2818,9 +2818,12 @@ components:
             google:
               master:
                 version: "1.8.7-gke.1"
-              node:
-                count: 1
-                version: "1.8.7-gke.1"
+              nodeVersion: "1.8.7-gke.1"
+              nodePools:
+                pool1:
+                  count: 1
+                  nodeInstanceType: "n1-standard-1"
+              
 
     AddClusterProfileAmazon:
       type: object
@@ -2859,21 +2862,21 @@ components:
         azure:
           type: object
           properties:
-            node:
+            nodePools:
               type: object
               properties:
-                resourceGroup:
-                  type: string
-                  example: "myRg"
-                count:
-                  type: integer
-                  example: 1
-                agentName:
-                  type: string
-                  example: "agentpool1"
-                kubernetesVersion:
-                  type: string
-                  example: "1.8.2"
+                pool1:
+                  type: object
+                  properties:
+                    count:
+                      type: integer
+                      example: 1
+                    nodeInstanceType:
+                      type: string
+                      example: "Standard_D2_v2"
+            kubernetesVersion:
+              type: string
+              example: "1.8.2"
 
     AddClusterProfileGoogle:
       type: object
@@ -2887,18 +2890,25 @@ components:
                 version:
                   type: string
                   example: "1.8.7-gke.1"
-            node:
+            nodeVersion:
+              type: string
+              example: "1.8.7-gke.1"
+            nodePools:
               type: object
               properties:
-                count:
-                  type: integer
-                  example: 1
-                serviceAccount:
-                  type: string
-                  example: "serviceAccountExample"
-                version:
-                  type: string
-                  example: "1.8.7-gke.1"
+                pool1:
+                  type: object
+                  properties:
+                    count:
+                      type: integer
+                      example: 1
+                    serviceAccount:
+                      type: string
+                      example: "serviceAccountExample"
+                    nodeInstanceType:
+                      type: string
+                      example: "n1-standard-2"
+
     Token:
       type: object
       required:
