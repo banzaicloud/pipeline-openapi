@@ -504,6 +504,61 @@ paths:
               schema:
                 $ref: '#/components/schemas/BaseError_500'
 
+  '/api/v1/orgs/{orgId}/clusters/{id}/nodes':
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - cluster
+      summary: List cluser nodes
+      operationId: ListNodes
+      description: List cluser nodes
+      parameters:
+        - name: orgId
+          in: path
+          required: true
+          description: Organization identification
+          schema:
+            type: integer
+        - name: id
+          in: path
+          required: true
+          description: Selected cluster identification (number)
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: "Nodes listed"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListNodesResponse'
+        '400':
+          description: "Error during getting endpoints"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseError_400'
+        '401':
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '404':
+          description: "Cluster not found"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClusterNotFound'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseError_500'
+
+
   '/api/v1/orgs/{orgId}/clusters/{id}/helminit':
     post:
       security:
@@ -2356,6 +2411,7 @@ components:
           items:
             $ref: '#/components/schemas/EndpointItem'
 
+
     EndpointItem:
       type: object
       properties:
@@ -2371,6 +2427,7 @@ components:
             $ref: '#/components/schemas/URLItem'
           example:
 
+
     URLItem:
       type: object
       properties:
@@ -2381,6 +2438,209 @@ components:
           type: string
           example: "url"
 
+
+    ListNodesResponse:
+      type: object
+      properties:
+        metadata:
+          type: object
+          properties:
+            selfLink:
+              type: string
+              example: "/api/v1/nodes"
+            resourceVersion:
+              type: string
+              example: "30123"
+    
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/NodeItem'
+
+    NodeItem:
+      type: object
+      properties:
+        metadata:
+          type: object
+          properties:
+            name:
+              type: string
+              example: "gke-gkecluster-feri-706-pool1-496eccb3-l25k"
+            selfLink:
+              type: string
+              example: "/api/v1/nodes/gke-gkecluster-feri-706-pool1-496eccb3-l25k"
+            uid:
+              type: string
+              example: "f214d7fb-41ae-11e8-a4ea-42010a8001da"
+            resourceVersion:
+              type: string
+              example: "30119"
+            creationTimestamp:
+              type: string
+              example: "2018-04-16T19:47:07Z"
+            labels:
+              type: object
+              properties:
+                beta.kubernetes.io/arch:
+                  type: string
+                  example: "amd64"
+                beta.kubernetes.io/fluentd-ds-ready:
+                  type: string
+                  example: "true"
+                beta.kubernetes.io/instance-type:
+                  type: string
+                  example: "n1-standard-2"
+                beta.kubernetes.io/os:
+                  type: string
+                  example: "linux"
+                cloud.google.com/gke-nodepool:
+                  type: string
+                  example: "pool1"
+                failure-domain.beta.kubernetes.io/region:
+                  type: string
+                  example: "us-central1"
+                failure-domain.beta.kubernetes.io/zone:
+                  type: string
+                  example: "us-central1-a"
+                kubernetes.io/hostname:
+                  type: string
+                  example: "gke-gkecluster-feri-706-pool1-496eccb3-l25k"
+            annotations:
+              type: object
+              properties:
+                node.alpha.kubernetes.io/ttl:
+                  type: string
+                  example: "0"
+                volumes.kubernetes.io/controller-managed-attach-detach:
+                  type: string
+                  example: "true"
+        spec:
+          type: object
+          properties:
+            podCIDR:
+              type: string
+              example: "10.48.0.0/24"
+            externalID:
+              type: string
+              example: "5935724476937880453"
+            providerID:
+              type: string
+              example: "gce://banzaitest/us-central1-a/gke-gkecluster-706-pool1-496eccb3-l25k"
+        status:
+          type: object
+          properties:
+            capacity:
+              type: object
+              properties:
+                cpu:
+                  type: string
+                  example: "2"
+                memory:
+                  type: string
+                  example: "7664776Ki"
+                pods:
+                  type: string
+                  example: "110"
+            allocatable:
+              type: object
+              properties:
+                cpu:
+                  type: string
+                  example: "1930m"
+                memory:
+                  type: string
+                  example: "5784712Ki"
+                pods:
+                  type: string
+                  example: "110"
+            conditions:
+              type: array
+              items:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    example: "KernelDeadlock"
+                  status:
+                    type: string
+                    example: "False"
+                  lastHeartbeatTime:
+                    type: string
+                    example: "2018-04-17T09:02:45Z"
+                  lastTransitionTime:
+                    type: string
+                    example: "2018-04-16T19:46:26Z"
+                  reason:
+                    type: string
+                    example: "KernelHasNoDeadlock"
+                  message:
+                    type: string
+                    example: "kernel has no deadlock"
+            addresses:
+              type: array
+              items:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    example: "InternalIP"
+                  address:
+                    type: string
+                    example: "10.128.0.2"
+
+            daemonEndpoints:
+              type: object
+              properties:
+                kubeletEndpoint:
+                  properties:
+                    Port:
+                      type: integer
+                      example: 10250
+            nodeInfo:
+              type: object
+              properties:
+                  machineID:
+                    type: string
+                    example: "10d8adda771410ca912a387cf7e5cb06"
+                  systemUUID:
+                    type: string
+                    example: "10D8ADDA-7714-10CA-912A-387CF7E5CB06"
+                  bootID:
+                    type: string
+                    example: "decb64ff-e662-410a-b862-04cb490b4772"
+                  kernelVersion:
+                    type: string
+                    example: "4.4.111+"
+                  osImage:
+                    type: string
+                    example: "Container-Optimized OS from Google"
+                  containerRuntimeVersion:
+                    type: string
+                    example: "docker://17.3.2"
+                  kubeletVersion:
+                      type: string
+                      example: "v1.9.4-gke.1"
+                  kubeProxyVersion:
+                      type: string
+                      example: "v1.9.4-gke.1"
+                  operatingSystem:
+                      type: string
+                      example: "linux"
+                  architecture:
+                      type: string
+                      example: "amd64"
+            images:
+              type: array
+              items:
+                type: object
+                properties:
+                  name:
+                    type: array
+                    example: ["asia.gcr.io/google_containers/node-problem-detector@sha256:f95cab985c26b2f46e9bd43283e0bfa88860c14e0fb0649266babe8b65e", "eu.gcr.io/google_containers/node-problem-detector@sha256:f95cab985c26b2f46e9bd43283e0bfa88860c14e0fb0649266babe"]
+                  sizeBytes:
+                    type: integer
+                    example: 286572743
+ 
     ListDeploymentsResponse:
       type: array
       items:
