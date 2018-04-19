@@ -2051,7 +2051,6 @@ components:
       required:
         - name
         - location
-        - nodeInstanceType
         - cloud
         - secret_id
         - properties
@@ -2062,9 +2061,6 @@ components:
         location:
           type: string
           example: "us-central1-a"
-        nodeInstanceType:
-          type: string
-          example: "n1-standard-1"
         cloud:
           type: string
           example: "google"
@@ -2097,7 +2093,7 @@ components:
           type: object
           required:
             - master
-            - node
+            - nodePools
           properties:
             master:
               type: object
@@ -2108,21 +2104,36 @@ components:
                 image:
                   type: string
                   example: "ami-06d1667f"
-            node:
+            nodePools:
               type: object
               properties:
-                spotPrice:
-                  type: string
-                  example: "0.2"
-                minCount:
-                  type: integer
-                  example: 1
-                maxCount:
-                  type: integer
-                  example: 2
-                image:
-                  type: string
-                  example: "ami-06d1667f"
+                pool1:
+                  $ref: '#/components/schemas/NodePoolsAmazon'
+
+    NodePoolsAmazon:
+      type: object
+      required:
+        - instanceType
+        - spotPrice
+        - minCount
+        - maxCount
+        - image
+      properties:
+        instanceType:
+          type: string
+          example: "m4.xlarge"
+        spotPrice:
+          type: string
+          example: "0.2"
+        minCount:
+          type: integer
+          example: 1
+        maxCount:
+          type: integer
+          example: 2
+        image:
+          type: string
+          example: "ami-06d1667f"
 
     CreateAzureProperties:
       type: object
@@ -2134,6 +2145,7 @@ components:
           required:
             - kubernetesVersion
             - resourceGroup
+            - nodePools
           properties:
             resourceGroup:
               type: string
@@ -2145,15 +2157,21 @@ components:
               type: object
               properties:
                 agentpool1:
-                  type: object
-                  properties:
-                    count:
-                      type: number
-                      example: 1
-                    nodeInstanceType:
-                      type: string
-                      example: "Standard_B2ms"
-
+                  $ref: '#/components/schemas/NodePoolsAzure'
+    
+    NodePoolsAzure:
+      type: object
+      required:
+        - count
+        - nodeInstanceType
+      properties:
+        count:
+          type: number
+          example: 1
+        nodeInstanceType:
+          type: string
+          example: "Standard_B2ms"
+    
     CreateGoogleProperties:
       type: object
       required:
@@ -2163,6 +2181,9 @@ components:
           type: object
           required:
              - project
+             - master
+             - nodeVersion
+             - nodePools
           properties:
             project:
               type: string
@@ -2178,16 +2199,24 @@ components:
               example: "1.8.7-gke.1"
             nodePools:
               type: object
+              required:
+                - agentpool1
               properties:
                 agentpool1:
-                  type: object
-                  properties:
-                    count:
-                      type: number
-                      example: 1
-                    nodeInstanceType:
-                      type: string
-                      example: "n1-standard-2"
+                  $ref: '#/components/schemas/NodePoolsGoogle'
+    
+    NodePoolsGoogle:
+      type: object
+      required:
+        - count
+        - nodeInstanceType
+      properties:
+        count:
+          type: number
+          example: 1
+        nodeInstanceType:
+          type: string
+          example: "n1-standard-2"      
 
     CreateClusterResponse_202:
       type: object
@@ -2327,17 +2356,25 @@ components:
       properties:
         amazon:
           type: object
+          required:
+            - nodePools
           properties:
-            node:
+            nodePools:
               type: object
               properties:
-                minCount:
-                  type: integer
-                  example: 2
-                maxCount:
-                  type: integer
-                  example: 4
-
+                pool1:
+                  $ref: '#/components/schemas/UpdateNodePoolsAmazon'
+    
+    UpdateNodePoolsAmazon:
+      type: object
+      properties:
+        minCount:
+          type: number
+          example: 1
+        maxCount:
+          type: number
+          example: 2
+      
     UpdateAzureProperties:
       type: object
       required:
@@ -2970,9 +3007,6 @@ components:
         cloud:
           type: string
           example: "google"
-        nodeInstanceType:
-          type: string
-          example: "n1-standard-1"
         properties:
           type: object
           oneOf:
@@ -3002,18 +3036,27 @@ components:
                 image:
                   type: string
                   example: "ami-06d1667f"
-            node:
+            nodePools:
               type: object
               properties:
-                spotPrice:
-                  type: string
-                  example: "0.2"
-                minCount:
-                  type: integer
-                  example: 1
-                maxCount:
-                  type: integer
-                  example: 2
+                pool1:
+                  type: object
+                  properties:
+                    instanceType: 
+                      type: string
+                      example: "m4.xlarge"
+                    spotPrice:
+                      type: string
+                      example: "0.2"
+                    minCount:
+                      type: integer
+                      example: 1
+                    maxCount:
+                      type: integer
+                      example: 2
+                    image:
+                      type: string
+                      example: "ami-06d1667f"
 
     ClusterProfileAzure:
       type: object
@@ -3021,18 +3064,21 @@ components:
         azure:
           type: object
           properties:
-            node:
+            kubernetesVersion:
+              type: string
+              example: "1.9.2" 
+            nodePools:
               type: object
               properties:
-                count:
-                  type: integer
-                  example: 1
-                agentName:
-                  type: string
-                  example: "agentpool1"
-                kubernetesVersion:
-                  type: string
-                  example: "1.8.2"
+                pool1:
+                  type: object
+                  properties:
+                    count:
+                      type: integer
+                      example: 1
+                    nodeInstanceType:
+                      type: string
+                      example: "Standard_D2_v2"
 
     ClusterProfileGoogle:
       type: object
@@ -3045,13 +3091,25 @@ components:
               properties:
                 version:
                   type: string
-                  example: 1.8.7-gke.1
+                  example: "1.8.7-gke.1"
             nodeVersion:
               type: string
-              example: 1.8.7-gke.1
-            serviceAccount:
-              type: string
-              example: "serviceAccountExample"
+              example: "1.8.7-gke.1"
+            nodePools:
+              type: object
+              properties:
+                pool1:
+                  type: object
+                  properties:
+                    count:
+                      type: number
+                      example: 1
+                    nodeInstanceType:
+                      type: string
+                      example: "n1-standard-1"
+                    serviceAccount:
+                      type: string
+                      example: ""
 
     AddClusterProfileRequest:
       type: object
@@ -3065,9 +3123,6 @@ components:
         cloud:
           type: string
           example: "google"
-        nodeInstanceType:
-          type: string
-          example: "n1-standard-1"
         properties:
           type: object
           oneOf:
@@ -3100,21 +3155,24 @@ components:
                 image:
                   type: string
                   example: "ami-06d1667f"
-            node:
+            nodePools:
               type: object
               properties:
-                spotPrice:
-                  type: string
-                  example: "0.2"
-                minCount:
-                  type: integer
-                  example: 1
-                maxCount:
-                  type: integer
-                  example: 2
-                image:
-                  type: string
-                  example: "ami-06d1667f"
+                pool1:
+                  type: object
+                  properties:
+                    spotPrice:
+                      type: string
+                      example: "0.2"
+                    minCount:
+                      type: integer
+                      example: 1
+                    maxCount:
+                      type: integer
+                      example: 2
+                    image:
+                      type: string
+                      example: "ami-06d1667f"
 
     AddClusterProfileAzure:
       type: object
@@ -3224,15 +3282,92 @@ components:
         values:
           type: array
           items:
-            $ref: '#/components/schemas/SecretKeyValue'
+            oneOf:
+              - $ref: '#/components/schemas/SecretKeyValueAmazon'
+              - $ref: '#/components/schemas/SecretKeyValueAzure'
+              - $ref: '#/components/schemas/SecretKeyValueGoogle'
+              - $ref: '#/components/schemas/SecretKeyValueKubernetes'
+          example:
+            type: string
+            project_id: string
+            private_key_id: string
+            private_key: string
+            client_email: string
+            client_id: string
+            auth_uri: string
+            token_uri: string
+            auth_provider_x509_cert_url: string
+            client_x509_cert_url: string
 
-    SecretKeyValue:
+    SecretKeyValueAmazon:
       type: object
+      required:
+        - AWS_ACCESS_KEY_ID
+        - AWS_SECRET_ACCESS_KEY
       properties:
+        AWS_ACCESS_KEY_ID:
+          type: string
+        AWS_SECRET_ACCESS_KEY:
+          type: string
+    
+    SecretKeyValueAzure:
+      type: object
+      required:
+        - AZURE_CLIENT_ID
+        - AZURE_CLIENT_SECRET
+        - AZURE_TENANT_ID
+        - AZURE_SUBSCRIPTION_ID
+      properties:
+        AZURE_CLIENT_ID:
+          type: string
+        AZURE_CLIENT_SECRET:
+          type: string
+        AZURE_TENANT_ID:
+          type: string
+        AZURE_SUBSCRIPTION_ID:
+          type: string
+    
+    SecretKeyValueGoogle:
+      type: object
+      required:
+        - type
+        - project_id
+        - private_key_id
+        - private_key
+        - client_email
+        - client_id
+        - auth_uri
+        - token_uri
+        - auth_provider_x509_cert_url
+        - client_x509_cert_url
+      properties:
+        type:
+          type: string
         project_id:
           type: string
-          example: "mygoogleprojectid"
+        private_key_id:
+          type: string
+        private_key:
+          type: string
+        client_email:
+          type: string
+        client_id:
+          type: string
+        auth_uri:
+          type: string
+        token_uri:
+          type: string
+        auth_provider_x509_cert_url:
+          type: string
+        client_x509_cert_url:
+          type: string
 
+    SecretKeyValueKubernetes:
+      type: object
+      properties:
+        K8Sconfig:
+          type: string
+      
     SecretsNotFound:
       type: object
       properties:
@@ -3399,7 +3534,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/SupportedCloudItem'
-
+          
     SupportedCloudItem:
       type: object
       properties:
@@ -3431,7 +3566,7 @@ components:
             fields:
               type: array
               example: [ "location", "instanceType", "image" ]
-        instanceType:
+        image:
           type: object
           properties:
             tags:
@@ -3440,7 +3575,13 @@ components:
             location:
               type: string
               example: "eu-west-1"
-
+        instanceType:
+          type: object
+          properties:
+            location:
+              type: string
+              example: "eu-west-1"
+          
     AzureConfigRequest:
       type: object
       properties:
@@ -3590,9 +3731,6 @@ components:
         location:
           type: string
           example: "us-central1-a"
-        nodeInstanceType:
-          type: string
-          example: "n1-standard-1"
         id:
           type: number
           example: 1
@@ -3601,11 +3739,10 @@ components:
           properties:
             pool1:
               type: object
-              properties:
-                count:
-                  type: number
-                  example: 1
-                nodeInstanceType:
-                  type: string
-                  example: "n1-standard-1"
-                  
+              oneOf:
+                - $ref: '#/components/schemas/NodePoolsAmazon'
+                - $ref: '#/components/schemas/NodePoolsAzure'
+                - $ref: '#/components/schemas/NodePoolsGoogle'
+              example:
+                count: 1
+                nodeInstanceType: "n1-standard-1"
