@@ -3566,21 +3566,21 @@ components:
             fields:
               type: array
               example: [ "location", "instanceType", "image" ]
-        image:
-          type: object
-          properties:
-            tags:
-              type: array
-              example: [ "0.3.0" ]
-            location:
-              type: string
-              example: "eu-west-1"
-        instanceType:
-          type: object
-          properties:
-            location:
-              type: string
-              example: "eu-west-1"
+            image:
+              type: object
+              properties:
+                tags:
+                  type: array
+                  example: [ "0.3.0" ]
+                location:
+                  type: string
+                  example: "eu-west-1"
+            instanceType:
+              type: object
+              properties:
+                location:
+                  type: string
+                  example: "eu-west-1"
           
     AzureConfigRequest:
       type: object
@@ -3594,18 +3594,18 @@ components:
             fields:
               type: array
               example: [ "location", "instanceType", "k8sVersion" ]
-        instanceType:
-          type: object
-          properties:
-            location:
-              type: string
-              example: "eastus"
-        k8sVersion:
-          type: object
-          properties:
-            location:
-              type: string
-              example: "eastus"
+            instanceType:
+              type: object
+              properties:
+                location:
+                  type: string
+                  example: "eastus"
+            k8sVersion:
+              type: object
+              properties:
+                location:
+                  type: string
+                  example: "eastus"
 
     GoogleConfigRequest:
       type: object
@@ -3619,18 +3619,18 @@ components:
             fields:
               type: array
               example: [ "location", "instanceType", "k8sVersion" ]
-        instanceType:
-          type: object
-          properties:
-            location:
-              type: string
-              example: "asia-east1-a"
-        k8sVersion:
-          type: object
-          properties:
-            location:
-              type: string
-              example: "us-central1-a"
+            instanceType:
+              type: object
+              properties:
+                location:
+                  type: string
+                  example: "asia-east1-a"
+            k8sVersion:
+              type: object
+              properties:
+                location:
+                  type: string
+                  example: "us-central1-a"
 
     AmazonConfigResponse:
       type: object
