@@ -3560,6 +3560,9 @@ components:
     AmazonConfigRequest:
       type: object
       properties:
+        secret_id:
+          type: string
+          example: "myAmazonSecret"
         filter:
           type: object
           properties:
