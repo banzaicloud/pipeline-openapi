@@ -3016,10 +3016,13 @@ components:
           example:
             google:
               master:
-                version: "1.8.7-gke.1"
-              
-              nodeVersion: "1.8.7-gke.1"
-              serviceAccount: ""
+                version: "1.9.4-gke.1"
+              nodeVersion: "1.9.4-gke.1"
+              nodePools:
+                pool1:
+                  count: 1
+                  nodeInstanceType: "n1-standard-1"
+                  serviceAccount: ""
 
     ClusterProfileAmazon:
       type: object
@@ -3173,6 +3176,9 @@ components:
                     image:
                       type: string
                       example: "ami-06d1667f"
+                    instanceType:
+                      type: string
+                      example: "m4.xlarge"
 
     AddClusterProfileAzure:
       type: object
